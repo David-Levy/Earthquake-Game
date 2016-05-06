@@ -159,5 +159,6 @@ function Maze(my_width, my_height) {
   }
 }
 
+//These lines are only for testing, we will not draw the map with this
 var test = new Maze(126, 57);
 test.draw();
