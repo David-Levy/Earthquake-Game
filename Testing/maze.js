@@ -161,3 +161,6 @@ function Maze(my_width, my_height) {
 
 var test = new Maze(126, 57);
 test.draw();
+
+//This comment has been added to test sync between github and
+//David Levy's smart-git client
