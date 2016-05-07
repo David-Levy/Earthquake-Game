@@ -15,7 +15,7 @@ var WALL_ID_DOWN = 2;
 var WALL_ID_LEFT = 3;
 
 //Drawing size for cell
-var CELL_DIM = 10;
+var CELL_DIM = 50;
 
 //********************* Constructor for each cell **************************
 function Cell(my_loc, my_index) {
@@ -31,6 +31,9 @@ function Cell(my_loc, my_index) {
 
   //Mark location of cell in disjoint set array
   this.set_index = my_index;
+
+  //Create array of adjacent and accessable cells
+  this.adjacent = new Array();
 }
 
 //************************ Constructor for maze *****************************
@@ -114,6 +117,10 @@ function Maze(my_width, my_height) {
         this.cells[adj_cells[chosen].row][adj_cells[chosen].col].wall[WALL_ID_LEFT] = false;
         this.cells[adj_cells[chosen].row][adj_cells[chosen].col].wall_value -= WALL_VAL_LEFT;
       }
+
+      //Add cells to each other's adjacency list
+      this.cells[temp_loc.row][temp_loc.col].adjacent.push({row: adj_cells[chosen].row, col: adj_cells[chosen].col});
+      this.cells[adj_cells[chosen].row][adj_cells[chosen].col].adjacent.push({row: temp_loc.row, col: temp_loc.col});
     }
   }
 
@@ -154,11 +161,17 @@ function Maze(my_width, my_height) {
           context.lineTo((j*CELL_DIM)+CELL_DIM, (i*CELL_DIM)+CELL_DIM);
           context.stroke();
         }
+
+        //Print adjacency list to console
+        console.log(i + ", " + j + " is adjacent to:");
+        for (var k=0; k<this.cells[i][j].adjacent.length; k++) {
+          console.log(" - " + this.cells[i][j].adjacent[k].row + ", " + this.cells[i][j].adjacent[k].col);
+        }
       }
     }
   }
 }
 
 //These lines are only for testing, we will not draw the map with this
-var test = new Maze(126, 57);
+var test = new Maze(5, 5);
 test.draw();
