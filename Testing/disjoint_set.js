@@ -9,7 +9,7 @@ function Disjoint_Set(num_obj) {
 
 	//Arrays for tracking sets and their sizes
 	this.parents = []; //list of links from node-to-node in a set, root object holds itself
-	this.sizes   = []; //Size attached only to root object in a set, otherwise 0
+	this.sizes = []; //Size attached only to root object in a set, otherwise 0
 
 	//Initialize array so each object is in a set of only itself and of size 1
 	for (var i=0; i<this.num_sets; i++) {

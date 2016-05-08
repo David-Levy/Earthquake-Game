@@ -15,7 +15,7 @@ var WALL_ID_DOWN = 2;
 var WALL_ID_LEFT = 3;
 
 //Drawing size for cell
-var CELL_DIM = 50;
+var CELL_DIM = 10;
 
 //********************* Constructor for each cell **************************
 function Cell(my_loc, my_index) {
@@ -173,5 +173,5 @@ function Maze(my_width, my_height) {
 }
 
 //These lines are only for testing, we will not draw the map with this
-var test = new Maze(5, 5);
-test.draw();
+//var test = new Maze(10, 10);
+//test.draw();
