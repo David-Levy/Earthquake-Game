@@ -1,13 +1,44 @@
+//Priority Queue object
+//Uses min binary heap for data structure see:
+//https://en.wikipedia.org/wiki/Binary_heap
 function Priority_Queue() {
+  //************************* Constructor ***************************
   this.length = 0; //total size of heap
-  this.queue = [];
+  this.queue = []; //Array which contains the heap
 
-  this.push = function(value) {
-    this.queue.push(value);
-    this.length++;
-    this.heapify_up(this.length-1);
+  //************************** Functions ****************************
+
+  //Change the priority of a node containing a specific value
+  //@Param value: the value requested node will containing
+  //@Param new_priority: new priority to set
+  this.change_priority = function(value, new_priority) {
+    //Find the requested node
+    var index = this.find(value);
+    //Set the new priority
+    this.queue[index].priority = new_priority;
+    //resort node into proper position
+    queue.heapify_up(index);
+    //Fix top of heap
+    if (queue.compare(1,0)) {queue.swap(0,1);}
   }
 
+  //*****************************************************************
+
+  //Returns true if first node is higher priority than second node
+  //@Param index_1: index of the first requested node
+  //@Param index_2: index of the second requested node
+  this.compare = function(index_1, index_2) {
+    if (this.queue[index_1]==null || this.queue[index_2]==null) {return false;}
+    //Special case for priority of infinity, represented by negative numbers
+    if (this.queue[index_1].priority<0) {return false;}
+    return this.queue[index_1].priority<this.queue[index_2].priority;
+  }
+
+  //*****************************************************************
+
+  //Returns the index of the node containing the request value or -1
+  //if no node exists
+  //@Param value: desired value to find
   this.find = function(value) {
     for (var i=0; i<this.length; i++) {
       if (this.queue[i].num==value) {return i;}
@@ -15,74 +46,112 @@ function Priority_Queue() {
     return -1;
   }
 
-  this.change_priority = function(value, new_priority) {
-    var index = this.find(value);
-    this.queue[index].priority = new_priority;
-    queue.heapify_up(index);
-    //Fix top of heap
-    if (queue.compare(1,0)) {queue.swap(0,1);}
-  }
+  //*****************************************************************
 
+  //Return the first item in the queue
   this.get_first = function() {
     return this.queue[0];
   }
 
-  this.pop = function() {
-    if (this.length<0) {return null;}
-    var first = this.queue[0];
-    var last = this.queue.pop();
-    this.length--;
-    this.queue[0] = last;
-    this.heapify(0);
-    return first;
+  //*****************************************************************
+
+  //Maintains the status of the heap
+  //@Param index: index of the current node to heapify
+  this.heapify = function(index) {
+    //Get the left child of requested node
+    var left = get_left_child(index);
+    //Get the right child of requested node
+    var right = get_right_child(index);
+
+    //Swap nodes if necessary to maintain heap status
+    if (this.compare(left, index)) {
+      this.swap(index, left);
+      this.heapify(left);
+    }
+    else if (this.compare(right, index)) {
+      this.swap(index, right);
+      this.heapify(right);
+    }
+    //If the node is in the proper place, stop sorting
+    else if (index==0) {return;}
+    //Otherwise sort again
+    else {this.heapify(0);}
   }
 
+  //*****************************************************************
+
+  //Filter a node up through the heap until it heap status is restored
+  //@Param: index of the node to be sorted
   this.heapify_up = function(index) {
+    //If node is at top of heap, end
     if (index==0) {return;}
-    var parent = this.get_parent(index);
+    //Get the parent of the current node
+    var parent = get_parent(index);
+    //If nodes are not in the correct order swap them
     if (this.compare(index, parent)) {
       this.swap(index, parent);
       this.heapify_up(parent);
     }
+    //If they are in correct order, stop altering heap
     else {return;}
   }
 
-  this.heapify = function(value) {
-    var left = this.get_left(value);
-    var right = this.get_right(value);
-    if (this.compare(left, value)) {
-      this.swap(value, left);
-      this.heapify(left);
-    }
-    else if (this.compare(right, value)) {
-      this.swap(value, right);
-      this.heapify(right);
-    }
-    else if (value==0) {return;}
-    else {this.heapify(0);}
+  //*****************************************************************
+
+  //Remove the first element in the queue and return it
+  this.pop = function() {
+    //Return null if queue is empty
+    if (this.length<0) {return null;}
+
+    //Store first element in heap
+    var first = this.queue[0];
+    //Store and remove last element in array
+    var last = this.queue.pop();
+    this.length--;
+
+    //Place the last element at the top of the heap
+    this.queue[0] = last;
+    //Filter former last node down to maintain heap status
+    this.heapify(0);
+    //Return first element
+    return first;
   }
 
+  //*****************************************************************
+
+  //Push a new value into the queue
+  this.push = function(value) {
+    //Add new value to end of array
+    this.queue.push(value);
+    this.length++;
+
+    //Filter value up into proper position
+    this.heapify_up(this.length-1);
+  }
+
+  //*****************************************************************
+
+  //Swap the nodes at given indices
+  //@Param index_1: index of first requested node
+  //@Param index_2: index of second requested node
   this.swap = function(index_1, index_2) {
     var temp = this.queue[index_1];
     this.queue[index_1] = this.queue[index_2];
     this.queue[index_2] = temp;
   }
 
-  this.compare = function(index_1, index_2) {
-    if (this.queue[index_1]==null || this.queue[index_2]==null) {return false;}
-    return this.queue[index_1].priority<this.queue[index_2].priority;
+  //*********************** Helper Functions ************************
+
+  var get_parent = function(index) {
+    return (index>>1)-1;
   }
 
-  this.get_parent = function(index) {
-    return Math.floor(index/2)-1;
+  var get_left_child = function(index) {
+    return (index<<1)+1;
   }
 
-  this.get_left = function(index) {
-    return (index*2)+1;
-  }
-
-  this.get_right = function(index) {
-    return (index*2)+2;
+  var get_right_child = function(index) {
+    return (index<<1)+2;
   }
 }
 
