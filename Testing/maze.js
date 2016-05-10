@@ -2,6 +2,7 @@ var canvas;
 var context;
 
 //Global constants
+var INFINITY = 10000000; //representation of infinity
 //Wall values
 var WALL_VAL_UP = 1;
 var WALL_VAL_RIGHT = 2;
@@ -31,6 +32,12 @@ function Cell(my_loc, my_index) {
 
   //Mark location of cell in disjoint set array
   this.set_index = my_index;
+
+  //Create array of adjacent and accessable cells
+  this.adjacent = new Array();
+
+  //Initialize distance from start point to infinity
+  this.distance = INFINITY;
 }
 
 //************************ Constructor for maze *****************************
@@ -38,7 +45,7 @@ function Maze(my_width, my_height) {
   canvas = $("#canvas")[0];
   context = canvas.getContext("2d");
 
-  console.log("Maze Creation Begin");
+  //console.log("Maze Creation Begin");
   //Set the number of rows and columns in maze
   this.num_col = my_width;
   this.num_row = my_height;
@@ -83,7 +90,7 @@ function Maze(my_width, my_height) {
     if (adj_cells.length>0) {
       var chosen = Math.floor(Math.random()*adj_cells.length);
       this.paths.join(this.cells[temp_loc.row][temp_loc.col].set_index, this.cells[adj_cells[chosen].row][adj_cells[chosen].col].set_index);
-      console.log("Joined " + temp_loc.row + ", " + temp_loc.col + " and " + adj_cells[chosen].row + ", " + adj_cells[chosen].col);
+      //console.log("Joined " + temp_loc.row + ", " + temp_loc.col + " and " + adj_cells[chosen].row + ", " + adj_cells[chosen].col);
 
       //Destry propper walls
       if (temp_loc.row>adj_cells[chosen].row) {
@@ -114,12 +121,16 @@ function Maze(my_width, my_height) {
         this.cells[adj_cells[chosen].row][adj_cells[chosen].col].wall[WALL_ID_LEFT] = false;
         this.cells[adj_cells[chosen].row][adj_cells[chosen].col].wall_value -= WALL_VAL_LEFT;
       }
+
+      //Add cells to each other's adjacency list
+      this.cells[temp_loc.row][temp_loc.col].adjacent.push({row: adj_cells[chosen].row, col: adj_cells[chosen].col});
+      this.cells[adj_cells[chosen].row][adj_cells[chosen].col].adjacent.push({row: temp_loc.row, col: temp_loc.col});
     }
   }
 
-  console.log("Maze Creation Complete");
+  //console.log("Maze Creation Complete");
 
-  //************************* Draw method for testing **************************
+  //************************ Draw methods for testing **************************
   this.draw = function() {
     canvas.width = CELL_DIM*this.num_col;
     canvas.height = CELL_DIM*this.num_row;
@@ -157,8 +168,87 @@ function Maze(my_width, my_height) {
       }
     }
   }
+
+  this.draw_path = function(path) {
+    for (var i=0; i<path.length; i++) {
+      context.fillStyle = "red";
+      context.beginPath();
+      context.arc((path[i].col*CELL_DIM)+(CELL_DIM/2), (path[i].row*CELL_DIM)+(CELL_DIM/2), (CELL_DIM/3), Math.PI*2, false);
+      context.fill();
+    }
+  }
+
+  //***************************** Solve the maze *******************************
+  this.solve = function(start_loc, end_loc) {
+    var visited = new Set(); //Set of all nodes algorithm has checked
+    var unvisited = new Set(); //Set of all nodes algorithm has not checked
+    var distances = new Priority_Queue(); //Distance of each node to the start point
+    //Create array of predecessors
+    var predecessor = new Array(this.num_row);
+    for (var i=0; i<predecessor.length; i++) {
+      predecessor[i] = new Array(this.num_col);
+    }
+    var current_cell; //The current cell we are investigating
+
+    //Fill data structures
+    for (var i=0; i<this.cells.length; i++) {
+      for (var j=0; j<this.cells[i].length; j++) {
+        unvisited.add("r" + i + "c" + j);
+        predecessor[i][j] = null;
+        distances.push({row: i, col: j, priority: INFINITY});
+      }
+    }
+
+    //Set distance of the start node to 0
+    distances.change_priority({row: start_loc.row, col: start_loc.col}, 0);
+    this.cells[start_loc.row][start_loc.col].distance = 0;
+
+    //Iterate until all nodes have been visited
+    while (unvisited.size>0) {
+      //Get cell with the current shortest distance
+      var temp = distances.pop();
+      current_cell = {row: temp.row, col: temp.col};
+      unvisited.delete("r" + current_cell.row + "c" + current_cell.col);
+      visited.add("r" + current_cell.row + "c" + current_cell.col);
+
+      var adj_cells = this.cells[current_cell.row][current_cell.col].adjacent;
+      //Relax all nodes connected to the current node and update their predecessors
+      for (var i=0; i<adj_cells.length; i++) {
+        //Get the current distance from the start point to the adjacent cell
+        var curr_distance = this.cells[adj_cells[i].row][adj_cells[i].col].distance;
+        //Set the potential new distance to that cell to be the distance to the current cell plus 1
+        var new_distance = this.cells[current_cell.row][current_cell.col].distance+1;
+
+        //Update data structures if the new path to the adjacent node would be shorter
+        //than its current path
+        if (curr_distance<0 || new_distance<curr_distance) {
+          this.cells[adj_cells[i].row][adj_cells[i].col].distance = new_distance;
+          predecessor[adj_cells[i].row][adj_cells[i].col] = {row: current_cell.row, col: current_cell.col};
+          if (unvisited.has("r" + adj_cells[i].row + "c" + adj_cells[i].col)) {
+            distances.change_priority({row: adj_cells[i].row, col: adj_cells[i].col}, new_distance);
+          }
+        }
+      }
+    }
+
+    //Construct path from predecessor data
+    var path = new Array();
+    current_cell = {row: end_loc.row, col: end_loc.col};
+    while (predecessor[current_cell.row][current_cell.col]!=null) {
+      path.push({row: current_cell.row, col: current_cell.col});
+      current_cell = {row: predecessor[current_cell.row][current_cell.col].row, col: predecessor[current_cell.row][current_cell.col].col};
+    }
+    path.push({row: start_loc.row, col: start_loc.col})
+
+    //Reverse direction of path and return
+    path.reverse();
+
+    return path;
+  }
 }
 
 //These lines are only for testing, we will not draw the map with this
-var test = new Maze(126, 57);
+var test = new Maze(127, 56);
+var found_path = test.solve({row: 0, col: 0}, {row: 55, col: 126});
 test.draw();
+test.draw_path(found_path);
