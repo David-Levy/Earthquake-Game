@@ -170,8 +170,8 @@ function Maze(my_width, my_height) {
   }
 
   this.draw_path = function(path) {
+    context.fillStyle = "red";
     for (var i=0; i<path.length; i++) {
-      context.fillStyle = "red";
       context.beginPath();
       context.arc((path[i].col*CELL_DIM)+(CELL_DIM/2), (path[i].row*CELL_DIM)+(CELL_DIM/2), (CELL_DIM/3), Math.PI*2, false);
       context.fill();
@@ -248,7 +248,7 @@ function Maze(my_width, my_height) {
 }
 
 //These lines are only for testing, we will not draw the map with this
-var test = new Maze(127, 56);
-var found_path = test.solve({row: 0, col: 0}, {row: 55, col: 126});
+var test = new Maze(127, 57);
+var found_path = test.solve({row: 0, col: 0}, {row: test.num_row-1, col: test.num_col-1});
 test.draw();
 test.draw_path(found_path);
