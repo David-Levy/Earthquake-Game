@@ -248,7 +248,9 @@ function Maze(my_width, my_height) {
 }
 
 //These lines are only for testing, we will not draw the map with this
+/*
 var test = new Maze(127, 57);
 var found_path = test.solve({row: 0, col: 0}, {row: test.num_row-1, col: test.num_col-1});
 test.draw();
 test.draw_path(found_path);
+*/
