@@ -18,17 +18,28 @@ var WALL_ID_LEFT = 3;
 //Drawing size for cell
 var CELL_DIM = 10;
 
+//Drawing constants
+var TILE_SIZE = 100;
+var WALL_THICKNESS = 10;
+
 //********************* Constructor for each cell **************************
 function Cell(my_loc, my_index) {
   //Create all four walls in cell
   this.wall = new Array(4);
   for(var i=0; i<this.wall.length; i++) {this.wall[i]=true;}
 
+  //Create empty array of wall objects
+  this.wall_objs = new Array(4);
+  for(var i=0; i<this.wall_objs.length; i++) {this.wall_objs[i]=null;}
+
   //value used to identify which image will be printed at cell
   this.wall_value = WALL_VAL_UP+WALL_VAL_DOWN+WALL_VAL_LEFT+WALL_VAL_RIGHT;
 
   //Location of the cell in the grid
   this.loc = {row : my_loc.row, col: my_loc.col};
+
+  //Position of cell on screen
+  this.screen_pos = {x: this.loc.col*TILE_SIZE, y: this.loc.row*TILE_SIZE};
 
   //Mark location of cell in disjoint set array
   this.set_index = my_index;
@@ -38,6 +49,54 @@ function Cell(my_loc, my_index) {
 
   //Initialize distance from start point to infinity
   this.distance = INFINITY;
+
+  //Draw function for this cell
+  this.draw = function() {
+    //Draw walls
+    for (var i=0; i<this.wall_objs.length; i++) {
+      if (this.wall_objs[i]!=null) {this.wall_objs[i].draw();}
+    }
+  }
+
+  //Add wall objects to cell
+  this.add_wall_objs = function() {
+    if (this.wall[WALL_ID_UP]) {
+      this.wall_objs[WALL_ID_UP] = new Wall({x: this.screen_pos, y:this.screen_pos, width: TILE_SIZE, height: WALL_THICKNESS});
+    }
+    if (this.wall[WALL_ID_DOWN]) {
+      this.wall_objs[WALL_ID_DOWN] = new Wall({x: this.screen_pos, y:this.screen_pos+TILE_SIZE-WALL_THICKNESS, width: TILE_SIZE, height: WALL_THICKNESS});
+    }
+    if (this.wall[WALL_ID_LEFT]) {
+      this.wall_objs[WALL_ID_LEFT] = new Wall({x: this.screen_pos, y:this.screen_pos, width: WALL_THICKNESS, height: TILE_SIZE});
+    }
+    if (this.wall[WALL_ID_RIGHT]) {
+      this.wall_objs[WALL_ID_RIGHT] = new Wall({x: this.screen_pos+TILE_SIZE-WALL_THICKNESS, y:this.screen_pos, width: WALL_THICKNESS, height: TILE_SIZE});
+    }
+  }
+
+  //Change screen position of a cell
+  this.set_pos = function(new_pos) {
+    this.screen_pos.x = new_pos.x;
+    this.screen_pos.y = new_pos.y;
+
+    //Update position of elements in cell
+    if (this.wall_objs[WALL_ID_UP]!=null && this.wall_objs[WALL_ID_UP]!=undefined) {
+      this.wall_objs[WALL_ID_UP].bounds.x = this.screen_pos.x;
+      this.wall_objs[WALL_ID_UP].bounds.y = this.screen_pos.y;
+    }
+    if (this.wall_objs[WALL_ID_DOWN]!=null && this.wall_objs[WALL_ID_DOWN]!=undefined) {
+      this.wall_objs[WALL_ID_DOWN].bounds.x = this.screen_pos.x;
+      this.wall_objs[WALL_ID_DOWN].bounds.y = this.screen_pos.y+TILE_SIZE-WALL_THICKNESS;
+    }
+    if (this.wall_objs[WALL_ID_LEFT]!=null && this.wall_objs[WALL_ID_LEFT]!=undefined) {
+      this.wall_objs[WALL_ID_LEFT].bounds.x = this.screen_pos.x;
+      this.wall_objs[WALL_ID_LEFT].bounds.y = this.screen_pos.y;
+    }
+    if (this.wall_objs[WALL_ID_RIGHT]!=null && this.wall_objs[WALL_ID_RIGHT]!=undefined) {
+      this.wall_objs[WALL_ID_RIGHT].bounds.x = this.screen_pos.x+TILE_SIZE-WALL_THICKNESS;
+      this.wall_objs[WALL_ID_RIGHT].bounds.y = this.screen_pos.y;
+    }
+  }
 }
 
 //************************ Constructor for maze *****************************
@@ -46,6 +105,21 @@ function Maze(my_width, my_height) {
   context = canvas.getContext("2d");
 
   //console.log("Maze Creation Begin");
+  //Set map view properties
+  this.view = {
+    x: 0,
+    y: 0,
+    width: canvas.width,
+    height: canvas.height,
+    x_min: 0,
+    y_min: 0,
+    x_max: (my_width*TILE_SIZE)-canvas.width,
+    y_max: (my_height*TILE_SIZE)-canvas.height
+  };
+  this.drawable_cells = new Array();
+  this.view_num_tiles = {width: Math.floor(this.view.width/TILE_SIZE), height: Math.floor(this.view.height/TILE_SIZE)};
+
+
   //Set the number of rows and columns in maze
   this.num_col = my_width;
   this.num_row = my_height;
@@ -128,10 +202,27 @@ function Maze(my_width, my_height) {
     }
   }
 
+  //Create wall objects
+  for (var i=0; i<this.num_row; i++) {
+    for (var j=0; j<this.num_col; j++) {
+      this.cells[i][j].add_wall_objs();
+    }
+  }
+
   //console.log("Maze Creation Complete");
 
-  //************************ Draw methods for testing **************************
+  //************************** Draw methods for map ****************************
   this.draw = function() {
+    canvas.width = canvas.width;
+
+    //Draw all drawable cells
+    while (this.drawable_cells.length>0) {
+      (this.drawable_cells.pop()).draw();
+    }
+  }
+
+  //************************ Draw methods for testing **************************
+  this.test_draw = function() {
     canvas.width = CELL_DIM*this.num_col;
     canvas.height = CELL_DIM*this.num_row;
     for (var i=0; i<this.num_row; i++) {
@@ -169,13 +260,50 @@ function Maze(my_width, my_height) {
     }
   }
 
-  this.draw_path = function(path) {
+  this.test_draw_path = function(path) {
     context.fillStyle = "red";
     for (var i=0; i<path.length; i++) {
       context.beginPath();
       context.arc((path[i].col*CELL_DIM)+(CELL_DIM/2), (path[i].row*CELL_DIM)+(CELL_DIM/2), (CELL_DIM/3), Math.PI*2, false);
       context.fill();
     }
+  }
+
+  //**************************** Scroll the maze *******************************
+  //Attempt to scroll the maze, return false if maze is at upper bound
+  this.scroll_up = function(speed) {
+    if (this.view.y==this.view.y_min) {return false;}
+    else if (this.view.y-speed<this.view.y_min) {this.view.y = this.view.y_min;}
+    else {this.view.y-=speed;}
+
+    return true;
+  }
+
+  //Attempt to scroll the maze, return false if maze is at lower bound
+  this.scroll_down = function(speed) {
+    if (this.view.y==this.view.y_max) {return false;}
+    else if (this.view.y+speed>this.view.y_max) {this.view.y = this.view.y_max;}
+    else {this.view.y+=speed;}
+
+    return true;
+  }
+
+  //Attempt to scroll the maze, return false if maze is at left bound
+  this.scroll_left = function(speed) {
+    if (this.view.x==this.view.x_min) {return false;}
+    else if (this.view.x-speed<this.view.x_min) {this.view.x = this.view.x_min;}
+    else {this.view.x-=speed;}
+
+    return true;
+  }
+
+  //Attempt to scroll the maze, return false if maze is at right bound
+  this.scroll_right = function(speed) {
+    if (this.view.x==this.view.x_max) {return false;}
+    else if (this.view.x+speed>this.view.x_max) {this.view.x = this.view.x_max;}
+    else {this.view.x+=speed;}
+
+    return true;
   }
 
   //***************************** Solve the maze *******************************
@@ -244,5 +372,44 @@ function Maze(my_width, my_height) {
     path.reverse();
 
     return path;
+  }
+
+  //**************************** Update the maze *******************************
+  this.update = function() {
+    this.drawable_cells = new Array();
+    var start_cell = {row: Math.floor(this.view.y/TILE_SIZE), col: Math.floor(this.view.x/TILE_SIZE)};
+    var tile_offset = {width: this.view.x%TILE_SIZE, height: this.view.y%TILE_SIZE};
+
+    //mark last row and col to draw
+    var last_col = (start_cell.col+this.view_num_tiles.width+2)>this.num_col ? this.num_col : start_cell.col+this.view_num_tiles.width+2;
+    var last_row = (start_cell.row+this.view_num_tiles.height+2)>this.num_row ? this.num_row : start_cell.row+this.view_num_tiles.height+2;
+
+    var count = {row: 0, col: 0};
+    for(var i=start_cell.row; i<last_row; i++) {
+      for(var j=start_cell.col; j<last_col; j++) {
+        this.cells[i][j].set_pos({x: (count.col*TILE_SIZE)-tile_offset.width, y: (count.row*TILE_SIZE)-tile_offset.height});
+        this.drawable_cells.push(this.cells[i][j]);
+        count.col++;
+      }
+      count.row++;
+      count.col=0;
+    }
+  }
+}
+
+//************************ Constructor for wall *****************************
+function Wall(bounds) {
+  //Create wall boundaries
+  this.bounds = {
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height
+  };
+
+  //Drawing Method for walls
+  this.draw = function() {
+    context.fillStyle = "red";
+    context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
   }
 }
