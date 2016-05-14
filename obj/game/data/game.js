@@ -14,7 +14,7 @@ function Game(maze_width, maze_height) {
   this.solution = this.maze.solve(this.start_loc, this.end_loc);
 
   //Check for collisions
-  this.check_collisions = function() {
+  this.check_collisions = function(keys) {
     this.collision_tree.clear();
 
     //Insert Player
@@ -33,16 +33,7 @@ function Game(maze_width, maze_height) {
     var possible_collisions = this.collision_tree.get_objects(this.player);
 
     //Resolve collisions
-    for (var i=0; i<possible_collisions.length; i++) {
-      if (possible_collisions[i]!=this.player && collided(this.player, possible_collisions[i])) {
-        this.player.bounds.x = this.player.prev_loc.x;
-        this.player.bounds.y = this.player.prev_loc.y;
-        this.maze.view.x = this.maze.view_prev_loc.x;
-        this.maze.view.y = this.maze.view_prev_loc.y;
-        this.maze.update();
-        break;
-      }
-    }
+    this.player.resolve_collisions(possible_collisions, keys);
   }
 
   //Drawing method for game
@@ -62,12 +53,12 @@ function Game(maze_width, maze_height) {
     //Update the maze
     this.maze.update();
 
-    this.check_collisions();
+    this.check_collisions(keys);
   }
 }
 
 //Returns true if two objects have collided
-function collided(obj_a, obj_b) {
+Game.collided = function(obj_a, obj_b) {
   if (obj_a.bounds.x>obj_b.bounds.x+obj_b.bounds.width || obj_a.bounds.x+obj_a.bounds.width<obj_b.bounds.x) {return false;}
   if (obj_a.bounds.y>obj_b.bounds.y+obj_b.bounds.height || obj_a.bounds.y+obj_a.bounds.height<obj_b.bounds.y) {return false;}
 

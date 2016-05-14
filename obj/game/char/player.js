@@ -40,11 +40,30 @@ function Player(start_loc, maze) {
 		context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
 	}
 
+  //Checks for collisions and resolves them
+  this.resolve_collisions = function(possible_collisions, keys) {
+    for (var i=0; i<possible_collisions.length; i++) {
+      if (possible_collisions[i]!=this && Game.collided(this, possible_collisions[i])) {
+        if (this.bounds.x!=this.prev_loc.x || this.my_maze.view.x!=this.my_maze.view_prev_loc.x) {
+          this.bounds.x = this.prev_loc.x;
+          this.my_maze.view.x = this.my_maze.view_prev_loc.x;
+        }
+        if (this.bounds.y!=this.prev_loc.y || this.my_maze.view.y!=this.my_maze.view_prev_loc.y) {
+          this.bounds.y = this.prev_loc.y;
+          this.my_maze.view.y = this.my_maze.view_prev_loc.y;
+        }
+
+        this.my_maze.update();
+        break;
+      }
+    }
+  }
+
   //Update Player
   this.update = function(keys) {
 		//Set previous Location
 		this.prev_loc = {x: this.bounds.x, y: this.bounds.y};
-		
+
 		//Direction to move player
 		var move = {x: 0, y: 0};
 
