@@ -5,7 +5,7 @@ var context;
 var PLAYER_DIM = 25;
 
 //Player movement speed
-var PLAYER_SPEED_NORM = 8;
+var PLAYER_SPEED_NORM = 2.5;
 var PLAYER_SPEED_DIAG = Math.sqrt(Math.pow(PLAYER_SPEED_NORM, 2)+Math.pow(PLAYER_SPEED_NORM, 2))/2;
 
 //Points at which screen will scroll
@@ -32,6 +32,7 @@ function Player(start_loc, maze) {
 	this.my_maze = maze;
 
   this.bounds = {x: start_loc.x, y: start_loc.y, width: PLAYER_DIM, height: PLAYER_DIM};
+	this.prev_loc = {x: this.bounds.x, y: this.bounds.y};
 
 	//Draw the player
 	this.draw = function() {
@@ -41,6 +42,9 @@ function Player(start_loc, maze) {
 
   //Update Player
   this.update = function(keys) {
+		//Set previous Location
+		this.prev_loc = {x: this.bounds.x, y: this.bounds.y};
+		
 		//Direction to move player
 		var move = {x: 0, y: 0};
 

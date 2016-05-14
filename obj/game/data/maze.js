@@ -116,6 +116,7 @@ function Maze(my_width, my_height) {
     x_max: (my_width*TILE_SIZE)-canvas.width,
     y_max: (my_height*TILE_SIZE)-canvas.height
   };
+  this.view_prev_loc = {x: 0, y:0};
   this.drawable_cells = new Array();
   this.view_num_tiles = {width: Math.floor(this.view.width/TILE_SIZE), height: Math.floor(this.view.height/TILE_SIZE)};
 
@@ -216,8 +217,8 @@ function Maze(my_width, my_height) {
     canvas.width = canvas.width;
 
     //Draw all drawable cells
-    while (this.drawable_cells.length>0) {
-      (this.drawable_cells.pop()).draw();
+    for (var i=0; i<this.drawable_cells.length; i++) {
+      this.drawable_cells[i].draw();
     }
   }
 
@@ -272,6 +273,7 @@ function Maze(my_width, my_height) {
   //**************************** Scroll the maze *******************************
   //Attempt to scroll the maze, return false if maze is at upper bound
   this.scroll_up = function(speed) {
+    this.view_prev_loc = {x: this.view.x, y: this.view.y};
     if (this.view.y==this.view.y_min) {return false;}
     else if (this.view.y-speed<this.view.y_min) {this.view.y = this.view.y_min;}
     else {this.view.y-=speed;}
@@ -281,6 +283,7 @@ function Maze(my_width, my_height) {
 
   //Attempt to scroll the maze, return false if maze is at lower bound
   this.scroll_down = function(speed) {
+    this.view_prev_loc = {x: this.view.x, y: this.view.y};
     if (this.view.y==this.view.y_max) {return false;}
     else if (this.view.y+speed>this.view.y_max) {this.view.y = this.view.y_max;}
     else {this.view.y+=speed;}
@@ -290,6 +293,7 @@ function Maze(my_width, my_height) {
 
   //Attempt to scroll the maze, return false if maze is at left bound
   this.scroll_left = function(speed) {
+    this.view_prev_loc = {x: this.view.x, y: this.view.y};
     if (this.view.x==this.view.x_min) {return false;}
     else if (this.view.x-speed<this.view.x_min) {this.view.x = this.view.x_min;}
     else {this.view.x-=speed;}
@@ -299,6 +303,7 @@ function Maze(my_width, my_height) {
 
   //Attempt to scroll the maze, return false if maze is at right bound
   this.scroll_right = function(speed) {
+    this.view_prev_loc = {x: this.view.x, y: this.view.y};
     if (this.view.x==this.view.x_max) {return false;}
     else if (this.view.x+speed>this.view.x_max) {this.view.x = this.view.x_max;}
     else {this.view.x+=speed;}
