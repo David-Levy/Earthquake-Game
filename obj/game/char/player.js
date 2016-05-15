@@ -44,18 +44,39 @@ function Player(start_loc, maze) {
   this.resolve_collisions = function(possible_collisions, keys) {
     for (var i=0; i<possible_collisions.length; i++) {
       if (possible_collisions[i]!=this && Game.collided(this, possible_collisions[i])) {
-        if (this.bounds.x!=this.prev_loc.x || this.my_maze.view.x!=this.my_maze.view_prev_loc.x) {
+        if (this.prev_loc.x<possible_collisions[i].bounds.x+possible_collisions[i].bounds.width && this.prev_loc.x+this.bounds.width>possible_collisions[i].bounds.x) {
+          if (this.prev_loc.y<possible_collisions[i].bounds.y) {
+            this.bounds.y = possible_collisions[i].bounds.y-this.bounds.height-1;
+          }
+          else {
+            this.bounds.y = possible_collisions[i].bounds.y+possible_collisions[i].bounds.height+1;
+          }
+        }
+        else if (this.prev_loc.y<possible_collisions[i].bounds.y+possible_collisions[i].bounds.height && this.prev_loc.y+this.bounds.height>possible_collisions[i].bounds.y) {
+          if (this.prev_loc.x<possible_collisions[i].bounds.x) {
+            this.bounds.x = possible_collisions[i].bounds.x-this.bounds.width-1;
+          }
+          else {
+            this.bounds.x = possible_collisions[i].bounds.x+possible_collisions[i].bounds.width+1;
+          }
+        }
+        else {
+          this.bounds.x = this.prev_loc.x;
+          this.bounds.y = this.prev_loc.y;
+        }
+      }
+      /*while (possible_collisions[i]!=this && Game.collided(this, possible_collisions[i])) {
+        if (Math.floor(this.bounds.x)!=Math.floor(this.prev_loc.x) || Math.floor(this.my_maze.view.x)!=Math.floor(this.my_maze.view_prev_loc.x)) {
           this.bounds.x = this.prev_loc.x;
           this.my_maze.view.x = this.my_maze.view_prev_loc.x;
         }
-        if (this.bounds.y!=this.prev_loc.y || this.my_maze.view.y!=this.my_maze.view_prev_loc.y) {
+        else if (Math.floor(this.bounds.y)!=Math.floor(this.prev_loc.y) || Math.floor(this.my_maze.view.y)!=Math.floor(this.my_maze.view_prev_loc.y)) {
           this.bounds.y = this.prev_loc.y;
           this.my_maze.view.y = this.my_maze.view_prev_loc.y;
         }
 
         this.my_maze.update();
-        break;
-      }
+      }*/
     }
   }
 
