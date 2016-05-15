@@ -411,6 +411,7 @@ function Wall(bounds) {
     width: bounds.width,
     height: bounds.height
   };
+  this.lighting_obj = new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.bounds.x, this.bounds.y), bottomright: new illuminated.Vec2(this.bounds.x+this.bounds.width, this.bounds.y+this.bounds.height) });
 
   //Drawing Method for walls
   this.draw = function() {

@@ -13,6 +13,24 @@ function Game(maze_width, maze_height) {
   this.player = new Player({x: 38, y: 38}, this.maze);
   this.solution = this.maze.solve(this.start_loc, this.end_loc);
 
+  //Create lighting objects
+  var lighting_objects = new Array();
+  lighting_objects.push(this.player.lighting_obj);
+  for (var i=0; i<this.maze.cells.length; i++) {
+    for (var j=0; j<this.maze.cells[i].length; j++) {
+      for (var k=0; k<this.maze.cells[i][j].wall_objs.length; k++) {
+        if (this.maze.cells[i][j].wall_objs[k]!=null) {
+          lighting_objects.push(this.maze.cells[i][j].wall_objs[k].lighting_obj);
+        }
+      }
+    }
+  }
+  this.lighting = new illuminated.Lighting({
+    light: this.player.flashlight,
+    objects: lighting_objects
+  });
+  this.darkmask = new illuminated.DarkMask({ lights: [this.player.flashlight] });
+
   //Check for collisions
   this.check_collisions = function(keys) {
     this.collision_tree.clear();
@@ -43,6 +61,12 @@ function Game(maze_width, maze_height) {
 
     //Draw the player
     this.player.draw();
+
+    //render lighting
+    context.globalCompositeOperation = "lighter";
+    this.lighting.render(context);
+    context.globalCompositeOperation = "source-over";
+    this.darkmask.render(context);
   }
 
   //Update game each step
@@ -53,7 +77,12 @@ function Game(maze_width, maze_height) {
     //Update the maze
     this.maze.update();
 
+    //Check for and handle collisions
     this.check_collisions();
+
+    //Compute lighting objects
+    this.lighting.compute(canvas.width, canvas.height);
+    this.darkmask.compute(canvas.width, canvas.height);
   }
 }
 

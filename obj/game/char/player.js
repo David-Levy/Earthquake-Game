@@ -31,7 +31,16 @@ function Player(start_loc, maze) {
 	//Hook to current maze
 	this.my_maze = maze;
 
+  //Create flashlight
+  this.flashlight = new illuminated.Lamp({
+    position: new illuminated.Vec2(100, 250),
+    distance: 200,
+    radius: 10,
+    samples: 3
+  });
+
   this.bounds = {x: start_loc.x, y: start_loc.y, width: PLAYER_DIM, height: PLAYER_DIM};
+  this.lighting_obj = new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.bounds.x, this.bounds.y), bottomright: new illuminated.Vec2(this.bounds.x+this.bounds.width, this.bounds.y+this.bounds.height) });
 	this.prev_loc = {x: this.bounds.x, y: this.bounds.y};
 
 	//Draw the player
@@ -44,6 +53,7 @@ function Player(start_loc, maze) {
   this.resolve_collisions = function(possible_collisions) {
     for (var i=0; i<possible_collisions.length; i++) {
       if (possible_collisions[i]!=this && Game.collided(this, possible_collisions[i])) {
+        //If object has collided from the top or bottom
         if (this.prev_loc.x<possible_collisions[i].bounds.x+possible_collisions[i].bounds.width && this.prev_loc.x+this.bounds.width>possible_collisions[i].bounds.x) {
           if (this.prev_loc.y<possible_collisions[i].bounds.y) {
             this.bounds.y = possible_collisions[i].bounds.y-this.bounds.height-1;
@@ -52,6 +62,7 @@ function Player(start_loc, maze) {
             this.bounds.y = possible_collisions[i].bounds.y+possible_collisions[i].bounds.height+1;
           }
         }
+        //If object has collided from the left or right
         else if (this.prev_loc.y<possible_collisions[i].bounds.y+possible_collisions[i].bounds.height && this.prev_loc.y+this.bounds.height>possible_collisions[i].bounds.y) {
           if (this.prev_loc.x<possible_collisions[i].bounds.x) {
             this.bounds.x = possible_collisions[i].bounds.x-this.bounds.width-1;
@@ -60,9 +71,21 @@ function Player(start_loc, maze) {
             this.bounds.x = possible_collisions[i].bounds.x+possible_collisions[i].bounds.width+1;
           }
         }
+        //Special handling for if object collides from a corner
         else {
-          this.bounds.x = this.prev_loc.x;
-          this.bounds.y = this.prev_loc.y;
+          if (this.prev_loc.x<possible_collisions[i].bounds.x) {
+            this.bounds.x = possible_collisions[i].bounds.x-this.bounds.width-1;
+          }
+          else {
+            this.bounds.x = possible_collisions[i].bounds.x+possible_collisions[i].bounds.width+1;
+          }
+
+          if (this.prev_loc.y<possible_collisions[i].bounds.y) {
+            this.bounds.y = possible_collisions[i].bounds.y-this.bounds.height-1;
+          }
+          else {
+            this.bounds.y = possible_collisions[i].bounds.y+possible_collisions[i].bounds.height+1;
+          }
         }
       }
       /*while (possible_collisions[i]!=this && Game.collided(this, possible_collisions[i])) {
