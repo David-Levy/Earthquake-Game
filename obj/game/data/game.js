@@ -33,7 +33,7 @@ function Game(maze_width, maze_height) {
     var possible_collisions = this.collision_tree.get_objects(this.player);
 
     //Resolve collisions
-    this.player.resolve_collisions(possible_collisions, keys);
+    this.player.resolve_collisions(possible_collisions);
   }
 
   //Drawing method for game
@@ -53,7 +53,7 @@ function Game(maze_width, maze_height) {
     //Update the maze
     this.maze.update();
 
-    this.check_collisions(keys);
+    this.check_collisions();
   }
 }
 
