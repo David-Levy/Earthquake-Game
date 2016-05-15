@@ -41,7 +41,7 @@ function Player(start_loc, maze) {
 	}
 
   //Checks for collisions and resolves them
-  this.resolve_collisions = function(possible_collisions, keys) {
+  this.resolve_collisions = function(possible_collisions) {
     for (var i=0; i<possible_collisions.length; i++) {
       if (possible_collisions[i]!=this && Game.collided(this, possible_collisions[i])) {
         if (this.prev_loc.x<possible_collisions[i].bounds.x+possible_collisions[i].bounds.width && this.prev_loc.x+this.bounds.width>possible_collisions[i].bounds.x) {
