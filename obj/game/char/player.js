@@ -45,7 +45,7 @@ function Player(start_loc, maze) {
     distance: 120,
     radius: 10,
     samples: 3,
-    roughness: 1.1
+    roughness: 0.99
   });
 
 	//Draw the player
@@ -93,18 +93,6 @@ function Player(start_loc, maze) {
           }
         }
       }
-      /*while (possible_collisions[i]!=this && Game.collided(this, possible_collisions[i])) {
-        if (Math.floor(this.bounds.x)!=Math.floor(this.prev_loc.x) || Math.floor(this.my_maze.view.x)!=Math.floor(this.my_maze.view_prev_loc.x)) {
-          this.bounds.x = this.prev_loc.x;
-          this.my_maze.view.x = this.my_maze.view_prev_loc.x;
-        }
-        else if (Math.floor(this.bounds.y)!=Math.floor(this.prev_loc.y) || Math.floor(this.my_maze.view.y)!=Math.floor(this.my_maze.view_prev_loc.y)) {
-          this.bounds.y = this.prev_loc.y;
-          this.my_maze.view.y = this.my_maze.view_prev_loc.y;
-        }
-
-        this.my_maze.update();
-      }*/
     }
   }
 

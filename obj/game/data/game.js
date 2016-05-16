@@ -94,11 +94,14 @@ function Game(maze_width, maze_height) {
 
   //Update game each step
   this.update = function(keys, mouse_info) {
+    //Clear list of light interactable objects
+    this.lighting.objects = new Array();
+
     //Update the player
     this.player.update(keys);
 
     //Update the maze
-    this.maze.update();
+    this.maze.update(this.lighting);
 
     //Check for and handle collisions
     this.check_collisions();
