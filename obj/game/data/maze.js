@@ -83,18 +83,26 @@ function Cell(my_loc, my_index) {
     if (this.wall_objs[WALL_ID_UP]!=null && this.wall_objs[WALL_ID_UP]!=undefined) {
       this.wall_objs[WALL_ID_UP].bounds.x = this.screen_pos.x;
       this.wall_objs[WALL_ID_UP].bounds.y = this.screen_pos.y;
+      this.wall_objs[WALL_ID_UP].lighting_obj.topleft = new illuminated.Vec2(this.wall_objs[WALL_ID_UP].bounds.x, this.wall_objs[WALL_ID_UP].bounds.y);
+      this.wall_objs[WALL_ID_UP].lighting_obj.bottomright = new illuminated.Vec2(this.wall_objs[WALL_ID_UP].bounds.x+this.wall_objs[WALL_ID_UP].bounds.width, this.wall_objs[WALL_ID_UP].bounds.y+this.wall_objs[WALL_ID_UP].bounds.height);
     }
     if (this.wall_objs[WALL_ID_DOWN]!=null && this.wall_objs[WALL_ID_DOWN]!=undefined) {
       this.wall_objs[WALL_ID_DOWN].bounds.x = this.screen_pos.x;
       this.wall_objs[WALL_ID_DOWN].bounds.y = this.screen_pos.y+TILE_SIZE-WALL_THICKNESS;
+      this.wall_objs[WALL_ID_DOWN].lighting_obj.topleft = new illuminated.Vec2(this.wall_objs[WALL_ID_DOWN].bounds.x, this.wall_objs[WALL_ID_DOWN].bounds.y);
+      this.wall_objs[WALL_ID_DOWN].lighting_obj.bottomright = new illuminated.Vec2(this.wall_objs[WALL_ID_DOWN].bounds.x+this.wall_objs[WALL_ID_DOWN].bounds.width, this.wall_objs[WALL_ID_DOWN].bounds.y+this.wall_objs[WALL_ID_DOWN].bounds.height);
     }
     if (this.wall_objs[WALL_ID_LEFT]!=null && this.wall_objs[WALL_ID_LEFT]!=undefined) {
       this.wall_objs[WALL_ID_LEFT].bounds.x = this.screen_pos.x;
       this.wall_objs[WALL_ID_LEFT].bounds.y = this.screen_pos.y;
+      this.wall_objs[WALL_ID_LEFT].lighting_obj.topleft = new illuminated.Vec2(this.wall_objs[WALL_ID_LEFT].bounds.x, this.wall_objs[WALL_ID_LEFT].bounds.y);
+      this.wall_objs[WALL_ID_LEFT].lighting_obj.bottomright = new illuminated.Vec2(this.wall_objs[WALL_ID_LEFT].bounds.x+this.wall_objs[WALL_ID_LEFT].bounds.width, this.wall_objs[WALL_ID_LEFT].bounds.y+this.wall_objs[WALL_ID_LEFT].bounds.height);
     }
     if (this.wall_objs[WALL_ID_RIGHT]!=null && this.wall_objs[WALL_ID_RIGHT]!=undefined) {
       this.wall_objs[WALL_ID_RIGHT].bounds.x = this.screen_pos.x+TILE_SIZE-WALL_THICKNESS;
       this.wall_objs[WALL_ID_RIGHT].bounds.y = this.screen_pos.y;
+      this.wall_objs[WALL_ID_RIGHT].lighting_obj.topleft = new illuminated.Vec2(this.wall_objs[WALL_ID_RIGHT].bounds.x, this.wall_objs[WALL_ID_RIGHT].bounds.y);
+      this.wall_objs[WALL_ID_RIGHT].lighting_obj.bottomright = new illuminated.Vec2(this.wall_objs[WALL_ID_RIGHT].bounds.x+this.wall_objs[WALL_ID_RIGHT].bounds.width, this.wall_objs[WALL_ID_RIGHT].bounds.y+this.wall_objs[WALL_ID_RIGHT].bounds.height);
     }
   }
 }
@@ -380,7 +388,7 @@ function Maze(my_width, my_height) {
   }
 
   //**************************** Update the maze *******************************
-  this.update = function() {
+  this.update = function(lighting) {
     this.drawable_cells = new Array();
     var start_cell = {row: Math.floor(this.view.y/TILE_SIZE), col: Math.floor(this.view.x/TILE_SIZE)};
     var tile_offset = {width: this.view.x%TILE_SIZE, height: this.view.y%TILE_SIZE};
@@ -392,8 +400,16 @@ function Maze(my_width, my_height) {
     var count = {row: 0, col: 0};
     for(var i=start_cell.row; i<last_row; i++) {
       for(var j=start_cell.col; j<last_col; j++) {
+        //Update position of cell
         this.cells[i][j].set_pos({x: (count.col*TILE_SIZE)-tile_offset.width, y: (count.row*TILE_SIZE)-tile_offset.height});
+        //Add to list of drawable objects
         this.drawable_cells.push(this.cells[i][j]);
+        //Add walls to list of shadowed objects
+        for (var k=0; k<this.cells[i][j].wall_objs.length; k++) {
+          if (this.cells[i][j].wall_objs[k]!=null) {
+            lighting.objects.push(this.cells[i][j].wall_objs[k].lighting_obj);
+          }
+        }
         count.col++;
       }
       count.row++;
@@ -411,6 +427,7 @@ function Wall(bounds) {
     width: bounds.width,
     height: bounds.height
   };
+  this.lighting_obj = new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.bounds.x, this.bounds.y), bottomright: new illuminated.Vec2(this.bounds.x+this.bounds.width, this.bounds.y+this.bounds.height) });
 
   //Drawing Method for walls
   this.draw = function() {
