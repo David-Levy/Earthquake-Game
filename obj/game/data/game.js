@@ -2,21 +2,21 @@ var canvas;
 var context;
 
 //Define a new game object
-function Game(maze_width, maze_height) {
+function Game(maze_floor, maze_width, maze_height) {
   canvas = $("#canvas")[0];
   context = canvas.getContext("2d");
 
-  this.start_loc = {row: 0, col: 0};
-  this.end_loc = {row: maze_height-1, col: maze_width-1};
+  this.start_loc = {floor: maze_floor-1, row: 0, col: 0};
+  this.end_loc = {floor: 0, row: maze_height-1, col: maze_width-1};
   this.collision_tree = new Collision_Tree(0, {x: 0, y:0, width: canvas.width, height: canvas.height});
-  this.maze = new Maze(maze_width, maze_height);
+  this.maze = new Maze(maze_floor, maze_width, maze_height);
   this.player = new Player({x: 38, y: 38}, this.maze);
   this.solution = this.maze.solve(this.start_loc, this.end_loc);
 
   //Create lighting objects
   var lighting_objects = new Array();
   //lighting_objects.push(this.player.lighting_obj);
-  for (var i=0; i<this.maze.cells.length; i++) {
+  /*for (var i=0; i<this.maze.cells.length; i++) {
     for (var j=0; j<this.maze.cells[i].length; j++) {
       for (var k=0; k<this.maze.cells[i][j].wall_objs.length; k++) {
         if (this.maze.cells[i][j].wall_objs[k]!=null) {
@@ -24,7 +24,7 @@ function Game(maze_width, maze_height) {
         }
       }
     }
-  }
+  }*/
   this.lighting = new illuminated.Lighting({
     light: this.player.flashlight,
     objects: lighting_objects

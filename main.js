@@ -38,7 +38,7 @@ $(document).ready(function(){
     //Initialize game state
     this.state = STATE_PLAYING_GAME;
     //create game instance
-    this.game = new Game(20, 10);
+    this.game = new Game(5, 20, 10);
   }
 
   function game_loop() {
