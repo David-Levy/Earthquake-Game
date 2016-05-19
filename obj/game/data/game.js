@@ -1,3 +1,9 @@
+//Game object type identifiers
+Game.PLAYER_ID = 0;
+Game.WALL_ID = 1;
+Game.RAMP_ID = 2;
+Game.HOLE_ID = 3;
+
 var canvas;
 var context;
 
@@ -12,26 +18,15 @@ function Game(maze_floor, maze_width, maze_height) {
   this.maze = new Maze(maze_floor, maze_width, maze_height);
   this.player = new Player({x: 38, y: 38}, this.maze);
   this.solution = this.maze.solve(this.start_loc, this.end_loc);
-  for (var i=0; i<this.solution.length; i++) {console.log(this.solution[i]);}
-  console.log(this.solution.length);
 
-  //Create lighting objects
+  //Create lighting objects array
   var lighting_objects = new Array();
-  //lighting_objects.push(this.player.lighting_obj);
-  /*for (var i=0; i<this.maze.cells.length; i++) {
-    for (var j=0; j<this.maze.cells[i].length; j++) {
-      for (var k=0; k<this.maze.cells[i][j].wall_objs.length; k++) {
-        if (this.maze.cells[i][j].wall_objs[k]!=null) {
-          lighting_objects.push(this.maze.cells[i][j].wall_objs[k].lighting_obj);
-        }
-      }
-    }
-  }*/
+
   this.lighting = new illuminated.Lighting({
     light: this.player.flashlight,
     objects: lighting_objects
   });
-  this.darkmask = new illuminated.DarkMask({ lights: [this.player.flashlight], color: 'rgba(0,0,0,0.976)'}); //Original Value for color alpha: 976
+  this.darkmask = new illuminated.DarkMask({ lights: [this.player.flashlight], color: 'rgba(0,0,0,0.96)'}); //Original Value for color alpha: 976
 
   //Adjusts and updates lighting objects
   this.adjust_lighting = function(mouse_info) {
@@ -76,6 +71,9 @@ function Game(maze_floor, maze_width, maze_height) {
 
   //Drawing method for game
   this.draw = function() {
+    context.fillStyle = "black";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
     //Draw the maze
     this.maze.draw();
 

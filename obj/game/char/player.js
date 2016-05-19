@@ -58,38 +58,41 @@ function Player(start_loc, maze) {
   this.resolve_collisions = function(possible_collisions) {
     for (var i=0; i<possible_collisions.length; i++) {
       if (possible_collisions[i]!=this && Game.collided(this, possible_collisions[i])) {
-        //If object has collided from the top or bottom
-        if (this.prev_loc.x<possible_collisions[i].bounds.x+possible_collisions[i].bounds.width && this.prev_loc.x+this.bounds.width>possible_collisions[i].bounds.x) {
-          if (this.prev_loc.y<possible_collisions[i].bounds.y) {
-            this.bounds.y = possible_collisions[i].bounds.y-this.bounds.height-1;
+        //Check for wall type objects
+        if (possible_collisions[i].bounds.type==Game.WALL_ID) {
+          //If object has collided from the top or bottom
+          if (this.prev_loc.x<possible_collisions[i].bounds.x+possible_collisions[i].bounds.width && this.prev_loc.x+this.bounds.width>possible_collisions[i].bounds.x) {
+            if (this.prev_loc.y<possible_collisions[i].bounds.y) {
+              this.bounds.y = possible_collisions[i].bounds.y-this.bounds.height-1;
+            }
+            else {
+              this.bounds.y = possible_collisions[i].bounds.y+possible_collisions[i].bounds.height+1;
+            }
           }
+          //If object has collided from the left or right
+          else if (this.prev_loc.y<possible_collisions[i].bounds.y+possible_collisions[i].bounds.height && this.prev_loc.y+this.bounds.height>possible_collisions[i].bounds.y) {
+            if (this.prev_loc.x<possible_collisions[i].bounds.x) {
+              this.bounds.x = possible_collisions[i].bounds.x-this.bounds.width-1;
+            }
+            else {
+              this.bounds.x = possible_collisions[i].bounds.x+possible_collisions[i].bounds.width+1;
+            }
+          }
+          //Special handling for if object collides from a corner
           else {
-            this.bounds.y = possible_collisions[i].bounds.y+possible_collisions[i].bounds.height+1;
-          }
-        }
-        //If object has collided from the left or right
-        else if (this.prev_loc.y<possible_collisions[i].bounds.y+possible_collisions[i].bounds.height && this.prev_loc.y+this.bounds.height>possible_collisions[i].bounds.y) {
-          if (this.prev_loc.x<possible_collisions[i].bounds.x) {
-            this.bounds.x = possible_collisions[i].bounds.x-this.bounds.width-1;
-          }
-          else {
-            this.bounds.x = possible_collisions[i].bounds.x+possible_collisions[i].bounds.width+1;
-          }
-        }
-        //Special handling for if object collides from a corner
-        else {
-          if (this.prev_loc.x<possible_collisions[i].bounds.x) {
-            this.bounds.x = possible_collisions[i].bounds.x-this.bounds.width-1;
-          }
-          else {
-            this.bounds.x = possible_collisions[i].bounds.x+possible_collisions[i].bounds.width+1;
-          }
+            if (this.prev_loc.x<possible_collisions[i].bounds.x) {
+              this.bounds.x = possible_collisions[i].bounds.x-this.bounds.width-1;
+            }
+            else {
+              this.bounds.x = possible_collisions[i].bounds.x+possible_collisions[i].bounds.width+1;
+            }
 
-          if (this.prev_loc.y<possible_collisions[i].bounds.y) {
-            this.bounds.y = possible_collisions[i].bounds.y-this.bounds.height-1;
-          }
-          else {
-            this.bounds.y = possible_collisions[i].bounds.y+possible_collisions[i].bounds.height+1;
+            if (this.prev_loc.y<possible_collisions[i].bounds.y) {
+              this.bounds.y = possible_collisions[i].bounds.y-this.bounds.height-1;
+            }
+            else {
+              this.bounds.y = possible_collisions[i].bounds.y+possible_collisions[i].bounds.height+1;
+            }
           }
         }
       }

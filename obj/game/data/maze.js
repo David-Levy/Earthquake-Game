@@ -23,7 +23,9 @@ var WALL_ID_FLOOR = 5;
 var CELL_DIM = 10;
 
 //Drawing constants
-var TILE_SIZE = 100;
+var HOLE_SIZE = 50;
+var RAMP_SIZE = 50;
+var TILE_SIZE = 200;
 var WALL_THICKNESS = 10;
 
 //Max number of partitions per floor
@@ -37,7 +39,7 @@ function Cell(my_loc, my_index) {
   for(var i=0; i<this.wall.length; i++) {this.wall[i]=true;}
 
   //Create empty array of wall objects
-  this.wall_objs = new Array(4);
+  this.wall_objs = new Array(6);
   for(var i=0; i<this.wall_objs.length; i++) {this.wall_objs[i]=null;}
 
   //value used to identify which image will be printed at cell
@@ -69,16 +71,22 @@ function Cell(my_loc, my_index) {
   //Add wall objects to cell
   this.add_wall_objs = function() {
     if (this.wall[WALL_ID_UP]) {
-      this.wall_objs[WALL_ID_UP] = new Wall({x: this.screen_pos, y:this.screen_pos, width: TILE_SIZE, height: WALL_THICKNESS});
+      this.wall_objs[WALL_ID_UP] = new Wall({x: this.screen_pos.x, y:this.screen_pos.y, width: TILE_SIZE, height: WALL_THICKNESS});
     }
     if (this.wall[WALL_ID_DOWN]) {
-      this.wall_objs[WALL_ID_DOWN] = new Wall({x: this.screen_pos, y:this.screen_pos+TILE_SIZE-WALL_THICKNESS, width: TILE_SIZE, height: WALL_THICKNESS});
+      this.wall_objs[WALL_ID_DOWN] = new Wall({x: this.screen_pos.x, y:this.screen_pos.y+TILE_SIZE-WALL_THICKNESS, width: TILE_SIZE, height: WALL_THICKNESS});
     }
     if (this.wall[WALL_ID_LEFT]) {
-      this.wall_objs[WALL_ID_LEFT] = new Wall({x: this.screen_pos, y:this.screen_pos, width: WALL_THICKNESS, height: TILE_SIZE});
+      this.wall_objs[WALL_ID_LEFT] = new Wall({x: this.screen_pos.x, y:this.screen_pos.y, width: WALL_THICKNESS, height: TILE_SIZE});
     }
     if (this.wall[WALL_ID_RIGHT]) {
-      this.wall_objs[WALL_ID_RIGHT] = new Wall({x: this.screen_pos+TILE_SIZE-WALL_THICKNESS, y:this.screen_pos, width: WALL_THICKNESS, height: TILE_SIZE});
+      this.wall_objs[WALL_ID_RIGHT] = new Wall({x: this.screen_pos.x+TILE_SIZE-WALL_THICKNESS, y:this.screen_pos.y, width: WALL_THICKNESS, height: TILE_SIZE});
+    }
+    if (!this.wall[WALL_ID_CEIL]) {
+      this.wall_objs[WALL_ID_CEIL] = new Ramp({x: this.screen_pos.x+(TILE_SIZE/2)-(RAMP_SIZE/2), y: this.screen_pos.y+(TILE_SIZE/2)-(RAMP_SIZE/2), width: RAMP_SIZE, height: RAMP_SIZE});
+    }
+    if (!this.wall[WALL_ID_FLOOR]) {
+      this.wall_objs[WALL_ID_FLOOR] = new Hole({x: this.screen_pos.x+(TILE_SIZE/2)-(HOLE_SIZE/2), y: this.screen_pos.y+(TILE_SIZE/2)-(HOLE_SIZE/2), width: HOLE_SIZE, height: HOLE_SIZE});
     }
   }
 
@@ -111,6 +119,18 @@ function Cell(my_loc, my_index) {
       this.wall_objs[WALL_ID_RIGHT].bounds.y = this.screen_pos.y;
       this.wall_objs[WALL_ID_RIGHT].lighting_obj.topleft = new illuminated.Vec2(this.wall_objs[WALL_ID_RIGHT].bounds.x, this.wall_objs[WALL_ID_RIGHT].bounds.y);
       this.wall_objs[WALL_ID_RIGHT].lighting_obj.bottomright = new illuminated.Vec2(this.wall_objs[WALL_ID_RIGHT].bounds.x+this.wall_objs[WALL_ID_RIGHT].bounds.width, this.wall_objs[WALL_ID_RIGHT].bounds.y+this.wall_objs[WALL_ID_RIGHT].bounds.height);
+    }
+    if (this.wall_objs[WALL_ID_CEIL]!=null && this.wall_objs[WALL_ID_CEIL]!=undefined) {
+      this.wall_objs[WALL_ID_CEIL].bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(RAMP_SIZE/2);
+      this.wall_objs[WALL_ID_CEIL].bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(RAMP_SIZE/2);
+      this.wall_objs[WALL_ID_CEIL].lighting_obj.topleft = new illuminated.Vec2(this.wall_objs[WALL_ID_CEIL].bounds.x, this.wall_objs[WALL_ID_CEIL].bounds.y);
+      this.wall_objs[WALL_ID_CEIL].lighting_obj.bottomright = new illuminated.Vec2(this.wall_objs[WALL_ID_CEIL].bounds.x+this.wall_objs[WALL_ID_CEIL].bounds.width, this.wall_objs[WALL_ID_CEIL].bounds.y+this.wall_objs[WALL_ID_CEIL].bounds.height);
+    }
+    if (this.wall_objs[WALL_ID_FLOOR]!=null && this.wall_objs[WALL_ID_FLOOR]!=undefined) {
+      this.wall_objs[WALL_ID_FLOOR].bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(HOLE_SIZE/2);
+      this.wall_objs[WALL_ID_FLOOR].bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(HOLE_SIZE/2);
+      this.wall_objs[WALL_ID_FLOOR].lighting_obj.topleft = new illuminated.Vec2(this.wall_objs[WALL_ID_FLOOR].bounds.x, this.wall_objs[WALL_ID_FLOOR].bounds.y);
+      this.wall_objs[WALL_ID_FLOOR].lighting_obj.bottomright = new illuminated.Vec2(this.wall_objs[WALL_ID_FLOOR].bounds.x+this.wall_objs[WALL_ID_FLOOR].bounds.width, this.wall_objs[WALL_ID_FLOOR].bounds.y+this.wall_objs[WALL_ID_FLOOR].bounds.height);
     }
   }
 }
@@ -363,8 +383,6 @@ function Maze(my_floor, my_width, my_height) {
 
   //************************** Draw methods for map ****************************
   this.draw = function() {
-    canvas.width = canvas.width;
-
     //Draw all drawable cells
     for (var i=0; i<this.drawable_cells.length; i++) {
       this.drawable_cells[i].draw();
@@ -543,6 +561,7 @@ function Maze(my_floor, my_width, my_height) {
     var last_col = (start_cell.col+this.view_num_tiles.width+2)>this.num_col ? this.num_col : start_cell.col+this.view_num_tiles.width+2;
     var last_row = (start_cell.row+this.view_num_tiles.height+2)>this.num_row ? this.num_row : start_cell.row+this.view_num_tiles.height+2;
 
+    lighting.objects = new Array();
     var count = {row: 0, col: 0};
     for(var i=start_cell.row; i<last_row; i++) {
       for(var j=start_cell.col; j<last_col; j++) {
@@ -550,10 +569,11 @@ function Maze(my_floor, my_width, my_height) {
         this.cells[this.current_floor][i][j].set_pos({x: (count.col*TILE_SIZE)-tile_offset.width, y: (count.row*TILE_SIZE)-tile_offset.height});
         //Add to list of drawable objects
         this.drawable_cells.push(this.cells[this.current_floor][i][j]);
+
         //Add walls to list of shadowed objects
-        for (var k=0; k<this.cells[this.current_floor][i][j].wall_objs.length; k++) {
+        for (var k=WALL_ID_CEIL; k<this.cells[this.current_floor][i][j].wall_objs.length; k++) {
           if (this.cells[this.current_floor][i][j].wall_objs[k]!=null) {
-            lighting.objects.push(this.cells[this.current_floor][i][j].wall_objs[k].lighting_obj);
+            lighting.objects.push(new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.cells[this.current_floor][i][j].wall_objs[k].bounds.x, this.cells[this.current_floor][i][j].wall_objs[k].bounds.y), bottomright: new illuminated.Vec2(this.cells[this.current_floor][i][j].wall_objs[k].bounds.x+this.cells[this.current_floor][i][j].wall_objs[k].bounds.width, this.cells[this.current_floor][i][j].wall_objs[k].bounds.y+this.cells[this.current_floor][i][j].wall_objs[k].bounds.height) }));
           }
         }
         count.col++;
@@ -564,6 +584,44 @@ function Maze(my_floor, my_width, my_height) {
   }
 }
 
+//************************ Constructor for hole *****************************
+function Hole(bounds) {
+  //Create hole boundaries
+  this.bounds = {
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height,
+    type: Game.HOLE_ID
+  };
+  this.lighting_obj = new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.bounds.x, this.bounds.y), bottomright: new illuminated.Vec2(this.bounds.x+this.bounds.width, this.bounds.y+this.bounds.height) });
+
+  //Drawing Method for holes
+  this.draw = function() {
+    context.fillStyle = "#BAF018";
+    context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+  }
+}
+
+//************************ Constructor for ramp *****************************
+function Ramp(bounds) {
+  //Create ramp boundaries
+  this.bounds = {
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height,
+    type: Game.RAMP_ID
+  };
+  this.lighting_obj = new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.bounds.x, this.bounds.y), bottomright: new illuminated.Vec2(this.bounds.x+this.bounds.width, this.bounds.y+this.bounds.height) });
+
+  //Drawing Method for ramp
+  this.draw = function() {
+    context.fillStyle = "green";
+    context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+  }
+}
+
 //************************ Constructor for wall *****************************
 function Wall(bounds) {
   //Create wall boundaries
@@ -571,7 +629,8 @@ function Wall(bounds) {
     x: bounds.x,
     y: bounds.y,
     width: bounds.width,
-    height: bounds.height
+    height: bounds.height,
+    type: Game.WALL_ID
   };
   this.lighting_obj = new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.bounds.x, this.bounds.y), bottomright: new illuminated.Vec2(this.bounds.x+this.bounds.width, this.bounds.y+this.bounds.height) });
 
