@@ -2,7 +2,7 @@ var canvas;
 var context;
 
 //Global constants
-var INFINITY = 10000000; //representation of infinity
+var INFINITY = Number.MAX_SAFE_INTEGER; //representation of infinity
 //Wall values
 var WALL_VAL_UP = 1;
 var WALL_VAL_RIGHT = 2;
@@ -25,6 +25,10 @@ var CELL_DIM = 10;
 //Drawing constants
 var TILE_SIZE = 100;
 var WALL_THICKNESS = 10;
+
+//Max number of partitions per floor
+var FLOOR_MAX_PARTITIONS = 4;
+var FLOOR_PARTITION_SIZE_BUFFER = 0.40;
 
 //********************* Constructor for each cell **************************
 function Cell(my_loc, my_index) {
@@ -132,7 +136,6 @@ function Maze(my_floor, my_width, my_height) {
   this.drawable_cells = new Array();
   this.view_num_tiles = {width: Math.floor(this.view.width/TILE_SIZE), height: Math.floor(this.view.height/TILE_SIZE)};
 
-
   //Set the number of floors, rows and columns in maze
   this.num_floor = my_floor;
   this.num_col = my_width;
@@ -156,7 +159,110 @@ function Maze(my_floor, my_width, my_height) {
   }
 
   //Create disjoint set to track connections between cells
-  this.paths = new Disjoint_Set(this.num_floor*this.num_row*this.num_col);
+  var total_num_cells = this.num_floor*this.num_row*this.num_col;
+  this.paths = new Disjoint_Set(total_num_cells);
+
+  //Create floors of mostly connected paths
+  for (var curr_floor=this.num_floor-1; curr_floor>=0; curr_floor--) {
+    var num_parts = Math.floor(Math.random()*(FLOOR_MAX_PARTITIONS-2)) + 2;
+    var target_set_num = this.paths.get_num_sets()-((this.num_row*this.num_col)-num_parts);
+
+    //Join cells until there is only one paths
+    while (this.paths.get_num_sets()>target_set_num) {
+      //Grab a random cell and see if it can be joined to an adjacent cell
+      var temp_loc = {floor: curr_floor, row: Math.floor(Math.random()*this.num_row), col: Math.floor(Math.random()*this.num_col)};
+      var adj_cells = new Array();
+
+      //Get the average length of connected paths
+      var lowest_connected_length = INFINITY;
+      var num_connected_paths = 0;
+      //console.log(curr_floor*this.num_row*this.num_col + ", " + (curr_floor+1)*this.num_row*this.num_col);
+      for (var i=curr_floor*this.num_row*this.num_col; i<(curr_floor+1)*this.num_row*this.num_col; i++) {
+        var temp_val = this.paths.get_set_size(i);
+        if (temp_val<lowest_connected_length) {
+          lowest_connected_length = temp_val;
+          num_connected_paths++;
+        }
+      }
+
+      //Set flag if all surrounding cells are above the lowest length
+      var all_adj_at_length = true;
+      if (temp_loc.row-1>=0 && this.paths.get_set_size(this.cells[temp_loc.floor][temp_loc.row-1][temp_loc.col].set_index)==lowest_connected_length && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor][temp_loc.row-1][temp_loc.col].set_index)) {
+        all_adj_at_length = false;
+      }
+      if (temp_loc.row+1<this.num_row && this.paths.get_set_size(this.cells[temp_loc.floor][temp_loc.row+1][temp_loc.col].set_index)==lowest_connected_length && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor][temp_loc.row+1][temp_loc.col].set_index)) {
+        all_adj_at_length = false;
+      }
+      if (temp_loc.col-1>=0 && this.paths.get_set_size(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col-1].set_index)==lowest_connected_length && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor][temp_loc.row][temp_loc.col-1].set_index)) {
+        all_adj_at_length = false;
+      }
+      if (temp_loc.col+1<this.num_col && this.paths.get_set_size(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col+1].set_index)==lowest_connected_length && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor][temp_loc.row][temp_loc.col+1].set_index)) {
+        all_adj_at_length = false;
+      }
+      //console.log(curr_floor + ", " + this.paths.get_num_sets() + ", " + target_set_num);
+
+      if (this.paths.get_set_size(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index)==lowest_connected_length) {
+        //adds cell north to adjacency list if it exists and is in a different set
+        if (temp_loc.row-1>=0 && (all_adj_at_length || (this.paths.get_set_size(this.cells[temp_loc.floor][temp_loc.row-1][temp_loc.col].set_index)==lowest_connected_length)) && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor][temp_loc.row-1][temp_loc.col].set_index)) {
+          adj_cells.push({floor: temp_loc.floor, row: temp_loc.row-1, col: temp_loc.col});
+        }
+        //adds cell south to adjacency list if it exists and is in a different set
+        if (temp_loc.row+1<this.num_row && (all_adj_at_length || (this.paths.get_set_size(this.cells[temp_loc.floor][temp_loc.row+1][temp_loc.col].set_index)==lowest_connected_length)) && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor][temp_loc.row+1][temp_loc.col].set_index)) {
+          adj_cells.push({floor: temp_loc.floor, row: temp_loc.row+1, col: temp_loc.col});
+        }
+        //adds cell to the west to adjacency list if it exists and is in a different set
+        if (temp_loc.col-1>=0 && (all_adj_at_length || (this.paths.get_set_size(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col-1].set_index)==lowest_connected_length)) && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor][temp_loc.row][temp_loc.col-1].set_index)) {
+          adj_cells.push({floor: temp_loc.floor, row: temp_loc.row, col: temp_loc.col-1});
+        }
+        //adds cell to the east to adjacency list if it exists and is in a different set
+        if (temp_loc.col+1<this.num_col && (all_adj_at_length || (this.paths.get_set_size(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col+1].set_index)==lowest_connected_length)) && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor][temp_loc.row][temp_loc.col+1].set_index)) {
+          adj_cells.push({floor: temp_loc.floor, row: temp_loc.row, col: temp_loc.col+1});
+        }
+      }
+
+      var chosen = Math.floor(Math.random()*adj_cells.length);
+      //If there is at least one available adjacent cell, pick a cell and join it to the set
+      //if (adj_cells.length>0 && this.paths.get_set_size(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index)<max_set_length && this.paths.get_set_size(this.cells[adj_cells[chosen].floor][adj_cells[chosen].row][adj_cells[chosen].col].set_index)<max_set_length) {
+      if (adj_cells.length>0) {
+        this.paths.join(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[adj_cells[chosen].floor][adj_cells[chosen].row][adj_cells[chosen].col].set_index);
+        //console.log("Joined " + temp_loc.row + ", " + temp_loc.col + " and " + adj_cells[chosen].row + ", " + adj_cells[chosen].col);
+
+        //Destroy propper walls
+        if (temp_loc.row>adj_cells[chosen].row) {
+          //If the chosen cell is north of the currently selected cell
+          this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_UP] = false;
+          this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall_value -= WALL_VAL_UP;
+          this.cells[adj_cells[chosen].floor][adj_cells[chosen].row][adj_cells[chosen].col].wall[WALL_ID_DOWN] = false;
+          this.cells[adj_cells[chosen].floor][adj_cells[chosen].row][adj_cells[chosen].col].wall_value -= WALL_VAL_DOWN;
+        }
+        else if (temp_loc.row<adj_cells[chosen].row) {
+          //If the chosen cell is south of the currently selected cell
+          this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_DOWN] = false;
+          this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall_value -= WALL_VAL_DOWN;
+          this.cells[adj_cells[chosen].floor][adj_cells[chosen].row][adj_cells[chosen].col].wall[WALL_ID_UP] = false;
+          this.cells[adj_cells[chosen].floor][adj_cells[chosen].row][adj_cells[chosen].col].wall_value -= WALL_VAL_UP;
+        }
+        else if (temp_loc.col>adj_cells[chosen].col) {
+          //If the chosen cell is west of the currently selected cell
+          this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_LEFT] = false;
+          this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall_value -= WALL_VAL_LEFT;
+          this.cells[adj_cells[chosen].floor][adj_cells[chosen].row][adj_cells[chosen].col].wall[WALL_ID_RIGHT] = false;
+          this.cells[adj_cells[chosen].floor][adj_cells[chosen].row][adj_cells[chosen].col].wall_value -= WALL_VAL_RIGHT;
+        }
+        else if (temp_loc.col<adj_cells[chosen].col) {
+          //If the chosen cell is east of the currently selected cell
+          this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_RIGHT] = false;
+          this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall_value -= WALL_VAL_RIGHT;
+          this.cells[adj_cells[chosen].floor][adj_cells[chosen].row][adj_cells[chosen].col].wall[WALL_ID_LEFT] = false;
+          this.cells[adj_cells[chosen].floor][adj_cells[chosen].row][adj_cells[chosen].col].wall_value -= WALL_VAL_LEFT;
+        }
+
+        //Add cells to each other's adjacency list
+        this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].adjacent.push({floor: adj_cells[chosen].floor, row: adj_cells[chosen].row, col: adj_cells[chosen].col});
+        this.cells[adj_cells[chosen].floor][adj_cells[chosen].row][adj_cells[chosen].col].adjacent.push({floor: temp_loc.floor, row: temp_loc.row, col: temp_loc.col});
+      }
+    }
+  }
 
   //Join cells until there is only one paths
   while (this.paths.get_num_sets()>1) {
@@ -164,7 +270,7 @@ function Maze(my_floor, my_width, my_height) {
     var temp_loc = {floor: Math.floor(Math.random()*this.num_floor), row: Math.floor(Math.random()*this.num_row), col: Math.floor(Math.random()*this.num_col)};
     var adj_cells = new Array();
     //adds cell north to adjacency list if it exists and is in a different set
-    if (temp_loc.row-1>=0 && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor][temp_loc.row-1][temp_loc.col].set_index)) {
+    /*if (temp_loc.row-1>=0 && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor][temp_loc.row-1][temp_loc.col].set_index)) {
       adj_cells.push({floor: temp_loc.floor, row: temp_loc.row-1, col: temp_loc.col});
     }
     //adds cell south to adjacency list if it exists and is in a different set
@@ -178,7 +284,7 @@ function Maze(my_floor, my_width, my_height) {
     //adds cell to the east to adjacency list if it exists and is in a different set
     if (temp_loc.col+1<this.num_col && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor][temp_loc.row][temp_loc.col+1].set_index)) {
       adj_cells.push({floor: temp_loc.floor, row: temp_loc.row, col: temp_loc.col+1});
-    }
+    }*/
     //adds ceiling cell to adjacency list if it exists and is in a different set and floor is not destroyed
     if (this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_FLOOR] && temp_loc.floor+1<this.num_floor && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor+1][temp_loc.row][temp_loc.col].set_index)) {
       adj_cells.push({floor: temp_loc.floor+1, row: temp_loc.row, col: temp_loc.col});

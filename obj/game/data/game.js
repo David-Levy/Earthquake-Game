@@ -12,6 +12,8 @@ function Game(maze_floor, maze_width, maze_height) {
   this.maze = new Maze(maze_floor, maze_width, maze_height);
   this.player = new Player({x: 38, y: 38}, this.maze);
   this.solution = this.maze.solve(this.start_loc, this.end_loc);
+  for (var i=0; i<this.solution.length; i++) {console.log(this.solution[i]);}
+  console.log(this.solution.length);
 
   //Create lighting objects
   var lighting_objects = new Array();
@@ -29,7 +31,7 @@ function Game(maze_floor, maze_width, maze_height) {
     light: this.player.flashlight,
     objects: lighting_objects
   });
-  this.darkmask = new illuminated.DarkMask({ lights: [this.player.flashlight], color: 'rgba(0,0,0,0.976)'});
+  this.darkmask = new illuminated.DarkMask({ lights: [this.player.flashlight], color: 'rgba(0,0,0,0.976)'}); //Original Value for color alpha: 976
 
   //Adjusts and updates lighting objects
   this.adjust_lighting = function(mouse_info) {
