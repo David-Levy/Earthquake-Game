@@ -16,7 +16,7 @@ function Priority_Queue() {
     var temp_nodes = new Array();
     do {
       temp_nodes.push(this.pop());
-    } while ((temp_nodes[temp_nodes.length-1].row!=value.row || temp_nodes[temp_nodes.length-1].col!=value.col) && this.queue.length>0)
+    } while ((temp_nodes[temp_nodes.length-1].floor!=value.floor || temp_nodes[temp_nodes.length-1].row!=value.row || temp_nodes[temp_nodes.length-1].col!=value.col) && this.queue.length>0)
 
     //Set priority of last element in temp list to new priority
     temp_nodes[temp_nodes.length-1].priority = new_priority;
@@ -45,7 +45,7 @@ function Priority_Queue() {
   //@Param value: desired value to find
   this.find = function(value) {
     for (var i=0; i<this.length; i++) {
-      if (this.queue[i].row==value.row && this.queue[i].col==value.col) {return i;}
+      if (this.queue[i].floor==value.floor && this.queue[i].row==value.row && this.queue[i].col==value.col) {return i;}
     }
     return -1;
   }
