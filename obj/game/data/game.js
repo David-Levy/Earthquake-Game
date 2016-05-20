@@ -1,4 +1,8 @@
-//Game object type identifiers
+//Game bounds type identifiers
+Game.RECT_ID = 0;
+Game.CIRCLE_ID = 1;
+
+//Game object tyoe identifiers
 Game.PLAYER_ID = 0;
 Game.WALL_ID = 1;
 Game.RAMP_ID = 2;

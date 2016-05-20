@@ -26,7 +26,7 @@ var CELL_DIM = 10;
 var HOLE_SIZE = 50;
 var RAMP_SIZE = 50;
 var TILE_SIZE = 200;
-var WALL_THICKNESS = 10;
+var WALL_THICKNESS = 15;
 
 //Max number of partitions per floor
 var FLOOR_MAX_PARTITIONS = 4;
@@ -99,38 +99,26 @@ function Cell(my_loc, my_index) {
     if (this.wall_objs[WALL_ID_UP]!=null && this.wall_objs[WALL_ID_UP]!=undefined) {
       this.wall_objs[WALL_ID_UP].bounds.x = this.screen_pos.x;
       this.wall_objs[WALL_ID_UP].bounds.y = this.screen_pos.y;
-      this.wall_objs[WALL_ID_UP].lighting_obj.topleft = new illuminated.Vec2(this.wall_objs[WALL_ID_UP].bounds.x, this.wall_objs[WALL_ID_UP].bounds.y);
-      this.wall_objs[WALL_ID_UP].lighting_obj.bottomright = new illuminated.Vec2(this.wall_objs[WALL_ID_UP].bounds.x+this.wall_objs[WALL_ID_UP].bounds.width, this.wall_objs[WALL_ID_UP].bounds.y+this.wall_objs[WALL_ID_UP].bounds.height);
     }
     if (this.wall_objs[WALL_ID_DOWN]!=null && this.wall_objs[WALL_ID_DOWN]!=undefined) {
       this.wall_objs[WALL_ID_DOWN].bounds.x = this.screen_pos.x;
       this.wall_objs[WALL_ID_DOWN].bounds.y = this.screen_pos.y+TILE_SIZE-WALL_THICKNESS;
-      this.wall_objs[WALL_ID_DOWN].lighting_obj.topleft = new illuminated.Vec2(this.wall_objs[WALL_ID_DOWN].bounds.x, this.wall_objs[WALL_ID_DOWN].bounds.y);
-      this.wall_objs[WALL_ID_DOWN].lighting_obj.bottomright = new illuminated.Vec2(this.wall_objs[WALL_ID_DOWN].bounds.x+this.wall_objs[WALL_ID_DOWN].bounds.width, this.wall_objs[WALL_ID_DOWN].bounds.y+this.wall_objs[WALL_ID_DOWN].bounds.height);
     }
     if (this.wall_objs[WALL_ID_LEFT]!=null && this.wall_objs[WALL_ID_LEFT]!=undefined) {
       this.wall_objs[WALL_ID_LEFT].bounds.x = this.screen_pos.x;
       this.wall_objs[WALL_ID_LEFT].bounds.y = this.screen_pos.y;
-      this.wall_objs[WALL_ID_LEFT].lighting_obj.topleft = new illuminated.Vec2(this.wall_objs[WALL_ID_LEFT].bounds.x, this.wall_objs[WALL_ID_LEFT].bounds.y);
-      this.wall_objs[WALL_ID_LEFT].lighting_obj.bottomright = new illuminated.Vec2(this.wall_objs[WALL_ID_LEFT].bounds.x+this.wall_objs[WALL_ID_LEFT].bounds.width, this.wall_objs[WALL_ID_LEFT].bounds.y+this.wall_objs[WALL_ID_LEFT].bounds.height);
     }
     if (this.wall_objs[WALL_ID_RIGHT]!=null && this.wall_objs[WALL_ID_RIGHT]!=undefined) {
       this.wall_objs[WALL_ID_RIGHT].bounds.x = this.screen_pos.x+TILE_SIZE-WALL_THICKNESS;
       this.wall_objs[WALL_ID_RIGHT].bounds.y = this.screen_pos.y;
-      this.wall_objs[WALL_ID_RIGHT].lighting_obj.topleft = new illuminated.Vec2(this.wall_objs[WALL_ID_RIGHT].bounds.x, this.wall_objs[WALL_ID_RIGHT].bounds.y);
-      this.wall_objs[WALL_ID_RIGHT].lighting_obj.bottomright = new illuminated.Vec2(this.wall_objs[WALL_ID_RIGHT].bounds.x+this.wall_objs[WALL_ID_RIGHT].bounds.width, this.wall_objs[WALL_ID_RIGHT].bounds.y+this.wall_objs[WALL_ID_RIGHT].bounds.height);
     }
     if (this.wall_objs[WALL_ID_CEIL]!=null && this.wall_objs[WALL_ID_CEIL]!=undefined) {
       this.wall_objs[WALL_ID_CEIL].bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(RAMP_SIZE/2);
       this.wall_objs[WALL_ID_CEIL].bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(RAMP_SIZE/2);
-      this.wall_objs[WALL_ID_CEIL].lighting_obj.topleft = new illuminated.Vec2(this.wall_objs[WALL_ID_CEIL].bounds.x, this.wall_objs[WALL_ID_CEIL].bounds.y);
-      this.wall_objs[WALL_ID_CEIL].lighting_obj.bottomright = new illuminated.Vec2(this.wall_objs[WALL_ID_CEIL].bounds.x+this.wall_objs[WALL_ID_CEIL].bounds.width, this.wall_objs[WALL_ID_CEIL].bounds.y+this.wall_objs[WALL_ID_CEIL].bounds.height);
     }
     if (this.wall_objs[WALL_ID_FLOOR]!=null && this.wall_objs[WALL_ID_FLOOR]!=undefined) {
       this.wall_objs[WALL_ID_FLOOR].bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(HOLE_SIZE/2);
       this.wall_objs[WALL_ID_FLOOR].bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(HOLE_SIZE/2);
-      this.wall_objs[WALL_ID_FLOOR].lighting_obj.topleft = new illuminated.Vec2(this.wall_objs[WALL_ID_FLOOR].bounds.x, this.wall_objs[WALL_ID_FLOOR].bounds.y);
-      this.wall_objs[WALL_ID_FLOOR].lighting_obj.bottomright = new illuminated.Vec2(this.wall_objs[WALL_ID_FLOOR].bounds.x+this.wall_objs[WALL_ID_FLOOR].bounds.width, this.wall_objs[WALL_ID_FLOOR].bounds.y+this.wall_objs[WALL_ID_FLOOR].bounds.height);
     }
   }
 }
@@ -592,9 +580,9 @@ function Hole(bounds) {
     y: bounds.y,
     width: bounds.width,
     height: bounds.height,
-    type: Game.HOLE_ID
+    type: Game.RECT_ID
   };
-  this.lighting_obj = new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.bounds.x, this.bounds.y), bottomright: new illuminated.Vec2(this.bounds.x+this.bounds.width, this.bounds.y+this.bounds.height) });
+  this.obj_type = Game.HOLE_ID;
 
   //Drawing Method for holes
   this.draw = function() {
@@ -611,9 +599,9 @@ function Ramp(bounds) {
     y: bounds.y,
     width: bounds.width,
     height: bounds.height,
-    type: Game.RAMP_ID
+    type: Game.RECT_ID
   };
-  this.lighting_obj = new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.bounds.x, this.bounds.y), bottomright: new illuminated.Vec2(this.bounds.x+this.bounds.width, this.bounds.y+this.bounds.height) });
+  this.obj_type = Game.RAMP_ID;
 
   //Drawing Method for ramp
   this.draw = function() {
@@ -630,9 +618,9 @@ function Wall(bounds) {
     y: bounds.y,
     width: bounds.width,
     height: bounds.height,
-    type: Game.WALL_ID
+    type: Game.RECT_ID
   };
-  this.lighting_obj = new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.bounds.x, this.bounds.y), bottomright: new illuminated.Vec2(this.bounds.x+this.bounds.width, this.bounds.y+this.bounds.height) });
+  this.obj_type = Game.WALL_ID;
 
   //Drawing Method for walls
   this.draw = function() {

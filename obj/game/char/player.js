@@ -35,6 +35,9 @@ function Player(start_loc, maze) {
 	//Hook to current maze
 	this.my_maze = maze;
 
+  //flag to see if player can change floors
+  this.can_change_floor = true;
+
   this.bounds = {x: start_loc.x, y: start_loc.y, width: PLAYER_DIM, height: PLAYER_DIM};
   this.lighting_obj = new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.bounds.x, this.bounds.y), bottomright: new illuminated.Vec2(this.bounds.x+this.bounds.width, this.bounds.y+this.bounds.height) });
 	this.prev_loc = {x: this.bounds.x, y: this.bounds.y};
@@ -56,10 +59,13 @@ function Player(start_loc, maze) {
 
   //Checks for collisions and resolves them
   this.resolve_collisions = function(possible_collisions) {
+    //flag used to determine if player is touching a hole or ramp
+    var touching_floor_change_obj = false;
+
     for (var i=0; i<possible_collisions.length; i++) {
       if (possible_collisions[i]!=this && Game.collided(this, possible_collisions[i])) {
         //Check for wall type objects
-        if (possible_collisions[i].bounds.type==Game.WALL_ID) {
+        if (possible_collisions[i].obj_type==Game.WALL_ID) {
           //If object has collided from the top or bottom
           if (this.prev_loc.x<possible_collisions[i].bounds.x+possible_collisions[i].bounds.width && this.prev_loc.x+this.bounds.width>possible_collisions[i].bounds.x) {
             if (this.prev_loc.y<possible_collisions[i].bounds.y) {
@@ -95,8 +101,20 @@ function Player(start_loc, maze) {
             }
           }
         }
+        //Check if player has collided with a hole or ramp
+        else if (possible_collisions[i].obj_type==Game.HOLE_ID || possible_collisions[i].obj_type==Game.RAMP_ID) {
+          touching_floor_change_obj = true;
+          if (this.can_change_floor) {
+            if (possible_collisions[i].obj_type==Game.HOLE_ID){this.my_maze.current_floor--;}
+            else {this.my_maze.current_floor++;}
+            this.can_change_floor = false;
+          }
+        }
       }
     }
+
+    //Reset can change floor flag if not touched hole or ramp
+    if (!touching_floor_change_obj) {this.can_change_floor = true;}
   }
 
   //Update Player
