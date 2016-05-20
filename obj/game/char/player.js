@@ -22,7 +22,7 @@ var KEY_CODE_LEFT = 37;//Left arrow
 var KEY_CODE_RIGHT = 39;//Right arrow
 
 //Player Object
-function Player(start_loc, maze) {
+function Player(start_loc, maze, game) {
   canvas = $("#canvas")[0];
   context = canvas.getContext("2d");
 
@@ -35,8 +35,15 @@ function Player(start_loc, maze) {
 	//Hook to current maze
 	this.my_maze = maze;
 
+  //Hook game to player
+  this.my_game = game;
+
   //flag to see if player can change floors
   this.can_change_floor = true;
+
+  //destitination if player is not in control
+  this.my_destination = {x: 0, y: 0};
+  this.my_destination_set = false;
 
   this.bounds = {
     x: start_loc.x,
@@ -110,9 +117,26 @@ function Player(start_loc, maze) {
         else if (possible_collisions[i].obj_type==Game.HOLE_ID || possible_collisions[i].obj_type==Game.RAMP_ID) {
           touching_floor_change_obj = true;
           if (this.can_change_floor) {
-            if (possible_collisions[i].obj_type==Game.HOLE_ID){this.my_maze.current_floor--;}
-            else {this.my_maze.current_floor++;}
-            this.can_change_floor = false;
+            //Set player destination to center of the ramp or hole if not already set
+            this.my_destination = {
+              x: possible_collisions[i].bounds.x+(possible_collisions[i].bounds.width/2)-(this.bounds.width/2),
+              y: possible_collisions[i].bounds.y+(possible_collisions[i].bounds.height/2)-(this.bounds.height/2)
+            };
+            if (this.my_game.curtain_fade_speed==0) {
+              this.my_game.curtain_fade_speed = 1/(Math.sqrt(Math.pow(this.my_destination.x-this.bounds.x, 2) + Math.pow(this.my_destination.y-this.bounds.y, 2))/PLAYER_SPEED_DIAG);
+            }
+
+            if (Math.abs(this.bounds.x-this.my_destination.x)>PLAYER_SPEED_DIAG || Math.abs(this.bounds.y-this.my_destination.y)>PLAYER_SPEED_DIAG) {
+              this.my_game.state = Game.STATE_CHANGING_FLOORS;
+            }
+            else {
+              if (possible_collisions[i].obj_type==Game.HOLE_ID){this.my_maze.current_floor--;}
+              else {this.my_maze.current_floor++;}
+              this.bounds.x = this.my_destination.x;
+              this.bounds.y = this.my_destination.y;
+              this.my_game.state = Game.STATE_FADING_IN;
+              this.can_change_floor = false;
+            }
           }
         }
       }
@@ -129,14 +153,25 @@ function Player(start_loc, maze) {
 
 		//Direction to move player
 		var move = {x: 0, y: 0};
+    var my_speed;
 
-		if (keys[KEY_CODE_W] || keys[KEY_CODE_UP]) {move.y-=PLAYER_SPEED_NORM;}
-		if (keys[KEY_CODE_S] || keys[KEY_CODE_DOWN]) {move.y+=PLAYER_SPEED_NORM;}
-		if (keys[KEY_CODE_A] || keys[KEY_CODE_LEFT]) {move.x-=PLAYER_SPEED_NORM;}
-		if (keys[KEY_CODE_D] || keys[KEY_CODE_RIGHT]) {move.x+=PLAYER_SPEED_NORM;}
+    //Move base on player input if in normal state
+    if (this.my_game.state==Game.STATE_NORMAL) {
+  		if (keys[KEY_CODE_W] || keys[KEY_CODE_UP]) {move.y-=PLAYER_SPEED_NORM;}
+  		if (keys[KEY_CODE_S] || keys[KEY_CODE_DOWN]) {move.y+=PLAYER_SPEED_NORM;}
+  		if (keys[KEY_CODE_A] || keys[KEY_CODE_LEFT]) {move.x-=PLAYER_SPEED_NORM;}
+  		if (keys[KEY_CODE_D] || keys[KEY_CODE_RIGHT]) {move.x+=PLAYER_SPEED_NORM;}
 
-		//determine speed of player
-		var my_speed = (move.x!=0 && move.y!=0) ? PLAYER_SPEED_DIAG : PLAYER_SPEED_NORM;
+      //determine speed of player
+  		my_speed = (move.x!=0 && move.y!=0) ? PLAYER_SPEED_DIAG : PLAYER_SPEED_NORM;
+    }
+    else if (this.my_game.state==Game.STATE_CHANGING_FLOORS) {
+      my_speed = PLAYER_SPEED_DIAG;
+      move = {
+        x: this.my_destination.x-this.bounds.x,
+        y: this.my_destination.y-this.bounds.y
+      }
+    }
 
 		//Move Player
 		var scrolled = false;

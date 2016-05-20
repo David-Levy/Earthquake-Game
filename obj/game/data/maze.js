@@ -558,11 +558,9 @@ function Maze(my_floor, my_width, my_height) {
         //Add to list of drawable objects
         this.drawable_cells.push(this.cells[this.current_floor][i][j]);
 
-        //Add walls to list of shadowed objects
-        for (var k=WALL_ID_CEIL; k<this.cells[this.current_floor][i][j].wall_objs.length; k++) {
-          if (this.cells[this.current_floor][i][j].wall_objs[k]!=null) {
-            lighting.objects.push(new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.cells[this.current_floor][i][j].wall_objs[k].bounds.x, this.cells[this.current_floor][i][j].wall_objs[k].bounds.y), bottomright: new illuminated.Vec2(this.cells[this.current_floor][i][j].wall_objs[k].bounds.x+this.cells[this.current_floor][i][j].wall_objs[k].bounds.width, this.cells[this.current_floor][i][j].wall_objs[k].bounds.y+this.cells[this.current_floor][i][j].wall_objs[k].bounds.height) }));
-          }
+        //Add ramp to list of shadowed objects
+        if (this.cells[this.current_floor][i][j].wall_objs[WALL_ID_CEIL]!=null) {
+          lighting.objects.push(new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.cells[this.current_floor][i][j].wall_objs[WALL_ID_CEIL].bounds.x, this.cells[this.current_floor][i][j].wall_objs[WALL_ID_CEIL].bounds.y), bottomright: new illuminated.Vec2(this.cells[this.current_floor][i][j].wall_objs[WALL_ID_CEIL].bounds.x+this.cells[this.current_floor][i][j].wall_objs[WALL_ID_CEIL].bounds.width, this.cells[this.current_floor][i][j].wall_objs[WALL_ID_CEIL].bounds.y+this.cells[this.current_floor][i][j].wall_objs[WALL_ID_CEIL].bounds.height) }));
         }
         count.col++;
       }

@@ -2,11 +2,16 @@
 Game.RECT_ID = 0;
 Game.CIRCLE_ID = 1;
 
-//Game object tyoe identifiers
+//Game object type identifiers
 Game.PLAYER_ID = 0;
 Game.WALL_ID = 1;
 Game.RAMP_ID = 2;
 Game.HOLE_ID = 3;
+
+//Game state identifiers
+Game.STATE_NORMAL = 0;
+Game.STATE_CHANGING_FLOORS = 1;
+Game.STATE_FADING_IN = 2;
 
 var canvas;
 var context;
@@ -16,11 +21,15 @@ function Game(maze_floor, maze_width, maze_height) {
   canvas = $("#canvas")[0];
   context = canvas.getContext("2d");
 
+  this.state = Game.STATE_NORMAL;
+  this.curtain_opacity = 0; //Black overlay used for fade-in fade-out
+  this.curtain_fade_speed = 0; //Rate at which curtain fades in and out
+
   this.start_loc = {floor: maze_floor-1, row: 0, col: 0};
   this.end_loc = {floor: 0, row: maze_height-1, col: maze_width-1};
   this.collision_tree = new Collision_Tree(0, {x: 0, y:0, width: canvas.width, height: canvas.height});
   this.maze = new Maze(maze_floor, maze_width, maze_height);
-  this.player = new Player({x: 38, y: 38}, this.maze);
+  this.player = new Player({x: 38, y: 38}, this.maze, this);
   this.solution = this.maze.solve(this.start_loc, this.end_loc);
 
   //Create lighting objects array
@@ -86,6 +95,14 @@ function Game(maze_floor, maze_width, maze_height) {
 
     //render lighting
     this.render_lighting();
+
+    //Draw curtain overlay if not completely transparent
+    if (this.curtain_opacity>0) {
+      context.globalAlpha = this.curtain_opacity;
+      context.fillStyle = "black";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.globalAlpha = 1;
+    }
   }
 
   //Render the lighting engine
@@ -112,6 +129,19 @@ function Game(maze_floor, maze_width, maze_height) {
 
     //Compute lighting objects
     this.adjust_lighting(mouse_info);
+
+    //Adjust curtain fade
+    this.curtain_opacity+=this.curtain_fade_speed;
+    if (this.curtain_opacity>=1) {
+      this.curtain_opacity=1;
+      this.curtain_fade_speed*=-1;
+      this.state = Game.STATE_FADING_IN;
+    }
+    else if (this.curtain_opacity<=0 && this.state==Game.STATE_FADING_IN) {
+      this.curtain_opacity = 0;
+      this.curtain_fade_speed = 0;
+      this.state = Game.STATE_NORMAL;
+    }
   }
 }
 
