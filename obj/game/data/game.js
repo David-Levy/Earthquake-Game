@@ -117,8 +117,23 @@ function Game(maze_floor, maze_width, maze_height) {
 
 //Returns true if two objects have collided
 Game.collided = function(obj_a, obj_b) {
-  if (obj_a.bounds.x>obj_b.bounds.x+obj_b.bounds.width || obj_a.bounds.x+obj_a.bounds.width<obj_b.bounds.x) {return false;}
-  if (obj_a.bounds.y>obj_b.bounds.y+obj_b.bounds.height || obj_a.bounds.y+obj_a.bounds.height<obj_b.bounds.y) {return false;}
+  //If both objects are rectangles
+  if (obj_a.bounds.type==Game.RECT_ID && obj_b.bounds.type==Game.RECT_ID) {
+    if (obj_a.bounds.x>obj_b.bounds.x+obj_b.bounds.width || obj_a.bounds.x+obj_a.bounds.width<obj_b.bounds.x) {return false;}
+    if (obj_a.bounds.y>obj_b.bounds.y+obj_b.bounds.height || obj_a.bounds.y+obj_a.bounds.height<obj_b.bounds.y) {return false;}
 
-  return true;
+    return true;
+  }
+  //If both objects are circles
+  else if (obj_a.bounds.type==Game.CIRCLE_ID && obj_b.bounds.type==Game.CIRCLE_ID) {
+    return Math.sqrt(Math.pow(obj_a.bounds.x-obj_b.bounds.x, 2)+Math.pow(obj_a.bounds.y-obj_b.bounds.y, 2))<obj_a.bounds.radius+obj_b.bounds.radius;
+  }
+  //If object a is a rectangle and object b is a circle
+  else if (obj_a.bounds.type==Game.RECT_ID && obj_b.bounds.type==Game.CIRCLE_ID) {
+    return (obj_b.bounds.x>obj_a.bounds.x-obj_b.bounds.radius) && (obj_b.bounds.x<obj_a.bounds.x+obj_a.bounds.width+obj_b.bounds.radius) && (obj_b.bounds.y>obj_a.bounds.y-obj_b.bounds.radius) && (obj_b.bounds.y<obj_a.bounds.y+obj_a.bounds.height+obj_b.bounds.radius);
+  }
+  //If object a is a circle and object b is a rectangle
+  else if (obj_a.bounds.type==Game.CIRCLE_ID && obj_b.bounds.type==Game.RECT_ID) {
+    return (obj_a.bounds.x>obj_b.bounds.x-obj_a.bounds.radius) && (obj_a.bounds.x<obj_b.bounds.x+obj_b.bounds.width+obj_a.bounds.radius) && (obj_a.bounds.y>obj_b.bounds.y-obj_a.bounds.radius) && (obj_a.bounds.y<obj_b.bounds.y+obj_b.bounds.height+obj_a.bounds.radius);
+  }
 }

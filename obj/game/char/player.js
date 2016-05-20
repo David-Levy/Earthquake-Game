@@ -38,8 +38,13 @@ function Player(start_loc, maze) {
   //flag to see if player can change floors
   this.can_change_floor = true;
 
-  this.bounds = {x: start_loc.x, y: start_loc.y, width: PLAYER_DIM, height: PLAYER_DIM};
-  this.lighting_obj = new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.bounds.x, this.bounds.y), bottomright: new illuminated.Vec2(this.bounds.x+this.bounds.width, this.bounds.y+this.bounds.height) });
+  this.bounds = {
+    x: start_loc.x,
+    y: start_loc.y,
+    width: PLAYER_DIM,
+    height: PLAYER_DIM,
+    type: Game.RECT_ID
+  };
 	this.prev_loc = {x: this.bounds.x, y: this.bounds.y};
 
   //Create flashlight
