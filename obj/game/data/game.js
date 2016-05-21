@@ -43,16 +43,11 @@ function Game(maze_floor, maze_width, maze_height) {
 
   //Adjusts and updates lighting objects
   this.adjust_lighting = function(mouse_info) {
+    //Set angle of light
     var angle = -1*Math.atan2(mouse_info.y-this.player.bounds.y-(this.player.bounds.height/2), mouse_info.x-this.player.bounds.x-(this.player.bounds.width/2));
-    //Get velocity
-    var velocity = {
-    	x: (this.player.flashlight.distance+this.player.bounds.width)*Math.cos(angle),
-      y: (this.player.flashlight.distance+this.player.bounds.height)*Math.sin(angle)
-    };
-
     this.player.flashlight.angle = angle;
 
-    this.player.flashlight.position = new illuminated.Vec2(this.player.bounds.x+(this.player.bounds.width/2), this.player.bounds.y+(this.player.bounds.height/2));
+    this.player.flashlight.position = new illuminated.Vec2(this.player.bounds.x+(this.player.bounds.width/2)+(this.player.bounds.width*Math.cos(angle)/2), this.player.bounds.y+(this.player.bounds.height/2)-(this.player.bounds.height*Math.sin(angle)/2));
 
     //Compute the shadow and darkness overlay
     this.lighting.compute(canvas.width, canvas.height);
