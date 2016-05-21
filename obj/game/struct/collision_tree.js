@@ -77,19 +77,39 @@ Collision_Tree.prototype.get_index = function(object) {
     y: this.bounds.y+(this.bounds.height/2)
   };
 
-  //If object is in top or bottom half
-  var in_top_half = object.bounds.y+object.bounds.height<bounds_center.y && object.bounds.y>this.bounds.y;
-  var in_bottom_half = object.bounds.y>bounds_center.y && object.bounds.y+object.bounds.height<this.bounds.y+this.bounds.height;
+  //If the object has rectangular bounds
+  if (object.bounds.type==Game.RECT_ID) {
+    //If object is in top or bottom half
+    var in_top_half = object.bounds.y+object.bounds.height<bounds_center.y && object.bounds.y>this.bounds.y;
+    var in_bottom_half = object.bounds.y>bounds_center.y && object.bounds.y+object.bounds.height<this.bounds.y+this.bounds.height;
 
-  //If object is on left side
-  if (object.bounds.x+object.bounds.width<bounds_center.x && object.bounds.x>this.bounds.x) {
-    if (in_top_half) {index = 1;}
-    else if (in_bottom_half) {index = 2;}
+    //If object is on left side
+    if (object.bounds.x+object.bounds.width<bounds_center.x && object.bounds.x>this.bounds.x) {
+      if (in_top_half) {index = 1;}
+      else if (in_bottom_half) {index = 2;}
+    }
+    //If object is on right side
+    if (object.bounds.x>bounds_center.x && object.bounds.x+object.bounds.width<this.bounds.x+this.bounds.width) {
+      if (in_top_half) {index = 0;}
+      else if (in_bottom_half) {index = 3;}
+    }
   }
-  //If object is on right side
-  if (object.bounds.x>bounds_center.x && object.bounds.x+object.bounds.width<this.bounds.x+this.bounds.width) {
-    if (in_top_half) {index = 0;}
-    else if (in_bottom_half) {index = 3;}
+  //If the object has circular bounds
+  else if (object.bounds.type==Game.CIRCLE_ID) {
+    //If object is in top or bottom half
+    var in_top_half = object.bounds.y+object.bounds.radius<bounds_center.y && object.bounds.y-object.bounds.radius>this.bounds.y;
+    var in_bottom_half = object.bounds.y-object.bounds.radius>bounds_center.y && object.bounds.y+object.bounds.radius<this.bounds.y+this.bounds.height;
+
+    //If object is on left side
+    if (object.bounds.x+object.bounds.radius<bounds_center.x && object.bounds.x-object.bounds.radius>this.bounds.x) {
+      if (in_top_half) {index = 1;}
+      else if (in_bottom_half) {index = 2;}
+    }
+    //If object is on right side
+    if (object.bounds.x-object.bounds.radius>bounds_center.x && object.bounds.x+object.bounds.radius<this.bounds.x+this.bounds.width) {
+      if (in_top_half) {index = 0;}
+      else if (in_bottom_half) {index = 3;}
+    }
   }
 
   return index;
