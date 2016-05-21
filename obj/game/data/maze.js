@@ -531,7 +531,7 @@ function Maze(my_floor, my_width, my_height) {
       path.push({floor: current_cell.floor, row: current_cell.row, col: current_cell.col});
       current_cell = {floor: predecessor[current_cell.floor][current_cell.row][current_cell.col].floor, row: predecessor[current_cell.floor][current_cell.row][current_cell.col].row, col: predecessor[current_cell.floor][current_cell.row][current_cell.col].col};
     }
-    path.push({floor: start_loc.floor, row: start_loc.row, col: start_loc.col})
+    path.push({floor: start_loc.floor, row: start_loc.row, col: start_loc.col});
 
     //Reverse direction of path and return
     path.reverse();
