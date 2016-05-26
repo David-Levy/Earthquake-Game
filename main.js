@@ -1,3 +1,6 @@
+//Sprite arrays
+Sprite.main_char_images = new Array(4);
+
 $(document).ready(function(){
   var canvas = $("#canvas")[0];
   var context = canvas.getContext("2d");
@@ -51,11 +54,22 @@ $(document).ready(function(){
     my_state.game.draw();
   }
 
+  //Load images into memory
+  function load_images() {
+    //load main character sprite images
+    for (var i=0; i<Sprite.main_char_images.length; i++) {
+      Sprite.main_char_images[i] = new Image();
+      Sprite.main_char_images[i].src = "sprite/char/main/Main" + i + ".png";
+      console.log("Loaded Image: " + Sprite.main_char_images[i].src);
+    }
+  }
+
   function update() {
     my_state.game.update(keys, mouse_info);
   }
 
   //Create and start game
   var my_state = new Game_State();
+  load_images();
   setInterval(game_loop, 17);
 })

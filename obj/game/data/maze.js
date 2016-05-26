@@ -26,7 +26,9 @@ var CELL_DIM = 10;
 var HOLE_SIZE = 50;
 var RAMP_SIZE = 50;
 var TILE_SIZE = 200;
+Maze.TILE_SIZE = 200;
 var WALL_THICKNESS = 15;
+Maze.WALL_THICKNESS = 15;
 
 //Max number of partitions per floor
 var FLOOR_MAX_PARTITIONS = 4;
@@ -295,11 +297,15 @@ function Maze(my_floor, my_width, my_height) {
     }*/
     //adds ceiling cell to adjacency list if it exists and is in a different set and floor is not destroyed
     if (this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_FLOOR] && temp_loc.floor+1<this.num_floor && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor+1][temp_loc.row][temp_loc.col].set_index)) {
-      adj_cells.push({floor: temp_loc.floor+1, row: temp_loc.row, col: temp_loc.col});
+      if (this.cells[temp_loc.floor+1][temp_loc.row][temp_loc.col].wall[WALL_ID_CEIL]) {
+        adj_cells.push({floor: temp_loc.floor+1, row: temp_loc.row, col: temp_loc.col});
+      }
     }
     //adds floor cell to adjacency list if it exists and is in a different set and ceiling is not destroyed
     if (this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_CEIL] && temp_loc.floor-1>=0 && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor-1][temp_loc.row][temp_loc.col].set_index)) {
-      adj_cells.push({floor: temp_loc.floor-1, row: temp_loc.row, col: temp_loc.col});
+      if (this.cells[temp_loc.floor-1][temp_loc.row][temp_loc.col].wall[WALL_ID_FLOOR]) {
+        adj_cells.push({floor: temp_loc.floor-1, row: temp_loc.row, col: temp_loc.col});
+      }
     }
 
     //If there is at least one available adjacent cell, pick a cell and join it to the set
@@ -557,6 +563,14 @@ function Maze(my_floor, my_width, my_height) {
         this.cells[this.current_floor][i][j].set_pos({x: (count.col*TILE_SIZE)-tile_offset.width, y: (count.row*TILE_SIZE)-tile_offset.height});
         //Add to list of drawable objects
         this.drawable_cells.push(this.cells[this.current_floor][i][j]);
+
+        /*
+        for (var k=0; k<4; k++) {
+          if (this.cells[this.current_floor][i][j].wall_objs[k]!=null) {
+            lighting.objects.push(new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.cells[this.current_floor][i][j].wall_objs[k].bounds.x, this.cells[this.current_floor][i][j].wall_objs[k].bounds.y), bottomright: new illuminated.Vec2(this.cells[this.current_floor][i][j].wall_objs[k].bounds.x+this.cells[this.current_floor][i][j].wall_objs[k].bounds.width, this.cells[this.current_floor][i][j].wall_objs[k].bounds.y+this.cells[this.current_floor][i][j].wall_objs[k].bounds.height) }));
+          }
+        }
+        */
 
         //Add ramp to list of shadowed objects
         if (this.cells[this.current_floor][i][j].wall_objs[WALL_ID_CEIL]!=null) {

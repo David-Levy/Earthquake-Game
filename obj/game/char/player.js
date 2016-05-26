@@ -2,15 +2,15 @@ var canvas;
 var context;
 
 //Size of player
-var PLAYER_DIM = 25;
+var PLAYER_DIM = 50;
 
 //Player movement speed
-var PLAYER_SPEED_NORM = 2.5;
+var PLAYER_SPEED_NORM = 1.85;
 var PLAYER_SPEED_DIAG = Math.sqrt(Math.pow(PLAYER_SPEED_NORM, 2)+Math.pow(PLAYER_SPEED_NORM, 2))/2;
 
 //Points at which screen will scroll
-var SCROLL_POINT_HOR = 150;
-var SCROLL_POINT_VERT = 150;
+var SCROLL_POINT_HOR = 225;
+var SCROLL_POINT_VERT = 225;
 
 var KEY_CODE_D = 68;//d
 var KEY_CODE_A = 65;//a
@@ -20,6 +20,8 @@ var KEY_CODE_UP = 38;//Up arrow
 var KEY_CODE_DOWN = 40;//Down arrow
 var KEY_CODE_LEFT = 37;//Left arrow
 var KEY_CODE_RIGHT = 39;//Right arrow
+
+var MAX_BATT_CHANGE_TIME = 150;
 
 //Player Object
 function Player(start_loc, maze, game) {
@@ -38,8 +40,25 @@ function Player(start_loc, maze, game) {
   //Hook game to player
   this.my_game = game;
 
+  //Create sprite object for player
+  this.my_sprite = new Sprite(Sprite.main_char_images, 10);
+  this.sprite_rotation = 0;
+
+  //Create inventory for player
+  this.inventory = {
+    battery: new Array(3),
+    med_kit: 3
+  };
+  for (var i=0; i<this.inventory.battery.length; i++) {
+    this.inventory.battery[i] = new Battery({x: null, y: null});
+  }
+
   //flag to see if player can change floors
   this.can_change_floor = true;
+
+  //flag if player is currently changing batteries
+  this.changing_battery = false;
+  this.batt_change_time = MAX_BATT_CHANGE_TIME;
 
   //destitination if player is not in control
   this.my_destination = {x: 0, y: 0};
@@ -57,17 +76,40 @@ function Player(start_loc, maze, game) {
   //Create flashlight
   this.flashlight = new illuminated.Lamp({
     position: new illuminated.Vec2(this.bounds.x+this.bounds.width, this.bounds.y+(this.bounds.height/2)),
+    diffuse: 0.0,
     distance: 120,
     radius: 10,
     samples: 3,
     roughness: 0.99
   });
 
+  //Create flashlight bounds
+  this.flashlight_bounds = {
+    bounds : {
+      x: 0,
+      y: 0,
+      radius: this.flashlight.distance,
+      type: Game.CIRCLE_ID
+    },
+    obj_type: Game.FLASHLIGHT_ID
+  };
+
 	//Draw the player
 	this.draw = function() {
-		context.fillStyle = "blue";
-		context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+    context.save();
+    context.translate(this.bounds.x, this.bounds.y);
+    context.translate(this.bounds.width/2, this.bounds.height/2)
+    context.rotate(this.sprite_rotation);
+    context.drawImage(this.my_sprite.get_image(),-(this.bounds.width)/2, -(this.bounds.height)/2, this.bounds.width, this.bounds.height);
+    context.restore();
+		//context.fillStyle = "blue";
+		//context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
 	}
+
+  //Returns true if flashlight is on
+  this.is_flashlight_on = function() {
+    return this.inventory.battery.length>0 && !this.changing_battery;
+  }
 
   //Checks for collisions and resolves them
   this.resolve_collisions = function(possible_collisions) {
@@ -147,7 +189,12 @@ function Player(start_loc, maze, game) {
   }
 
   //Update Player
-  this.update = function(keys) {
+  this.update = function(keys, mouse_info) {
+    //update the sprite
+    this.my_sprite.update();
+
+    this.sprite_rotation = Math.atan2(mouse_info.y-this.bounds.y-(this.bounds.height/2), mouse_info.x-this.bounds.x-(this.bounds.width/2))+(Math.PI/2);
+
 		//Set previous Location
 		this.prev_loc = {x: this.bounds.x, y: this.bounds.y};
 
@@ -155,8 +202,28 @@ function Player(start_loc, maze, game) {
 		var move = {x: 0, y: 0};
     var my_speed;
 
-    //Move base on player input if in normal state
+    //Move based on player input if in normal state
     if (this.my_game.state==Game.STATE_NORMAL) {
+      //perform battery applications
+      if (this.inventory.battery.length>0) {
+        if (!this.changing_battery) {
+          this.inventory.battery[0].update();
+          //replace batery if out and have spare
+          if (this.inventory.battery[0].life == 0) {
+            this.inventory.battery.shift();
+            this.changing_battery = true;
+          }
+        }
+        else {
+          //Delay for player to change battery
+          this.batt_change_time--;
+          if (this.batt_change_time==0) {
+            this.batt_change_time = MAX_BATT_CHANGE_TIME;
+            this.changing_battery = false;
+          }
+        }
+      }
+
   		if (keys[KEY_CODE_W] || keys[KEY_CODE_UP]) {move.y-=PLAYER_SPEED_NORM;}
   		if (keys[KEY_CODE_S] || keys[KEY_CODE_DOWN]) {move.y+=PLAYER_SPEED_NORM;}
   		if (keys[KEY_CODE_A] || keys[KEY_CODE_LEFT]) {move.x-=PLAYER_SPEED_NORM;}
@@ -172,6 +239,9 @@ function Player(start_loc, maze, game) {
         y: this.my_destination.y-this.bounds.y
       }
     }
+
+    //set player sprite to still if not moving
+    if (move.x==0 && move.y==0) {this.my_sprite.reset();}
 
 		//Move Player
 		var scrolled = false;
