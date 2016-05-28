@@ -57,8 +57,10 @@ Collision_Tree.prototype.divide = function() {
 Collision_Tree.prototype.draw = function() {
   //Draw this bounding box
   context.save();
+  context.strokeStyle = "green";
   context.rect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
   context.stroke();
+  context.strokeStyle = "black";
   context.restore();
 
   for (var i=0; i<this.nodes.length; i++) {

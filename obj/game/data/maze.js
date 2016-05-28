@@ -26,7 +26,9 @@ var CELL_DIM = 10;
 var HOLE_SIZE = 50;
 var RAMP_SIZE = 50;
 var TILE_SIZE = 200;
+Maze.TILE_SIZE = 200;
 var WALL_THICKNESS = 15;
+Maze.WALL_THICKNESS = 15;
 
 //Max number of partitions per floor
 var FLOOR_MAX_PARTITIONS = 4;
@@ -48,6 +50,13 @@ function Cell(my_loc, my_index) {
   //Location of the cell in the grid
   this.loc = {row : my_loc.row, col: my_loc.col, floor: my_loc.floor};
 
+  //Location of starting and ending cells
+  this.start_loc = null;
+  this.end_loc = null;
+
+  //holds npc if they are at this cell
+  this.my_npc = null;
+
   //Position of cell on screen
   this.screen_pos = {x: this.loc.col*TILE_SIZE, y: this.loc.row*TILE_SIZE};
 
@@ -65,6 +74,11 @@ function Cell(my_loc, my_index) {
     //Draw walls
     for (var i=0; i<this.wall_objs.length; i++) {
       if (this.wall_objs[i]!=null) {this.wall_objs[i].draw();}
+    }
+
+    //Draw npc if they are at this cell
+    if (this.my_npc!=null) {
+      this.my_npc.draw();
     }
   }
 
@@ -119,6 +133,12 @@ function Cell(my_loc, my_index) {
     if (this.wall_objs[WALL_ID_FLOOR]!=null && this.wall_objs[WALL_ID_FLOOR]!=undefined) {
       this.wall_objs[WALL_ID_FLOOR].bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(HOLE_SIZE/2);
       this.wall_objs[WALL_ID_FLOOR].bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(HOLE_SIZE/2);
+    }
+    if (this.my_npc!=null) {
+      this.my_npc.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_npc.bounds.width/2);
+      this.my_npc.bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(this.my_npc.bounds.height/2);
+      this.my_npc.talk_zone.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_npc.talk_zone.bounds.width/2);
+      this.my_npc.talk_zone.bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(this.my_npc.talk_zone.bounds.height/2);
     }
   }
 }
@@ -295,11 +315,15 @@ function Maze(my_floor, my_width, my_height) {
     }*/
     //adds ceiling cell to adjacency list if it exists and is in a different set and floor is not destroyed
     if (this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_FLOOR] && temp_loc.floor+1<this.num_floor && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor+1][temp_loc.row][temp_loc.col].set_index)) {
-      adj_cells.push({floor: temp_loc.floor+1, row: temp_loc.row, col: temp_loc.col});
+      if (this.cells[temp_loc.floor+1][temp_loc.row][temp_loc.col].wall[WALL_ID_CEIL]) {
+        adj_cells.push({floor: temp_loc.floor+1, row: temp_loc.row, col: temp_loc.col});
+      }
     }
     //adds floor cell to adjacency list if it exists and is in a different set and ceiling is not destroyed
     if (this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_CEIL] && temp_loc.floor-1>=0 && !this.paths.in_same_set(this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].set_index, this.cells[temp_loc.floor-1][temp_loc.row][temp_loc.col].set_index)) {
-      adj_cells.push({floor: temp_loc.floor-1, row: temp_loc.row, col: temp_loc.col});
+      if (this.cells[temp_loc.floor-1][temp_loc.row][temp_loc.col].wall[WALL_ID_FLOOR]) {
+        adj_cells.push({floor: temp_loc.floor-1, row: temp_loc.row, col: temp_loc.col});
+      }
     }
 
     //If there is at least one available adjacent cell, pick a cell and join it to the set
@@ -423,6 +447,72 @@ function Maze(my_floor, my_width, my_height) {
       context.arc((path[i].col*CELL_DIM)+(CELL_DIM/2), (path[i].row*CELL_DIM)+(CELL_DIM/2), (CELL_DIM/3), Math.PI*2, false);
       context.fill();
     }
+  }
+
+  //*********************** Pick path start and end points *********************
+  this.pick_start_and_end = function() {
+    this.start_loc = null;
+    this.end_loc = null;
+
+    //Pick start point
+    do {
+      var temp_loc = {
+        floor: this.num_floor-1,
+        row: Math.floor(Math.random()*3),
+        col: Math.floor(Math.random()*2)
+      };
+      if (this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_CEIL] && this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_FLOOR]) {
+        this.start_loc = {
+          floor: temp_loc.floor,
+          row: temp_loc.row,
+          col: temp_loc.col
+        };
+      }
+    } while (this.start_loc==null);
+
+    //Pick end point
+    do {
+      var side = Math.floor(Math.random()*4);
+      var temp_loc = {
+        floor: 0,
+        row: 0,
+        col: 0
+      };
+
+      if (side==0) {
+        temp_loc.row = this.num_row-1;
+        temp_loc.col = Math.floor(Math.random()*this.num_col);
+      }
+      else if (side==1) {
+        temp_loc.row = 0;
+        temp_loc.col = Math.floor(Math.random()*this.num_col);
+      }
+      else if (side==2) {
+        temp_loc.row = Math.floor(Math.random()*this.num_row);
+        temp_loc.col = this.num_col-1;
+      }
+      else if (side==3) {
+        temp_loc.row = Math.floor(Math.random()*this.num_row);
+        temp_loc.col = 0;
+      }
+
+      if (this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_CEIL] && this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_FLOOR]) {
+        this.end_loc = {
+          floor: temp_loc.floor,
+          row: temp_loc.row,
+          col: temp_loc.col
+        };
+      }
+    } while (this.end_loc==null);
+  }
+
+  //********************** Try to place npc at given point *********************
+  this.place_npc = function(loc, character) {
+    if (this.cells[loc.floor][loc.row][loc.col].wall[WALL_ID_CEIL] && this.cells[loc.floor][loc.row][loc.col].wall[WALL_ID_FLOOR] && this.cells[loc.floor][loc.row][loc.col].my_npc==null) {
+      this.cells[loc.floor][loc.row][loc.col].my_npc = new Npc(character, {floor: loc.floor, row: loc.row, col: loc.col});
+      return true;
+    }
+    return false;
   }
 
   //**************************** Scroll the maze *******************************
@@ -557,6 +647,14 @@ function Maze(my_floor, my_width, my_height) {
         this.cells[this.current_floor][i][j].set_pos({x: (count.col*TILE_SIZE)-tile_offset.width, y: (count.row*TILE_SIZE)-tile_offset.height});
         //Add to list of drawable objects
         this.drawable_cells.push(this.cells[this.current_floor][i][j]);
+
+        /*
+        for (var k=0; k<4; k++) {
+          if (this.cells[this.current_floor][i][j].wall_objs[k]!=null) {
+            lighting.objects.push(new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.cells[this.current_floor][i][j].wall_objs[k].bounds.x, this.cells[this.current_floor][i][j].wall_objs[k].bounds.y), bottomright: new illuminated.Vec2(this.cells[this.current_floor][i][j].wall_objs[k].bounds.x+this.cells[this.current_floor][i][j].wall_objs[k].bounds.width, this.cells[this.current_floor][i][j].wall_objs[k].bounds.y+this.cells[this.current_floor][i][j].wall_objs[k].bounds.height) }));
+          }
+        }
+        */
 
         //Add ramp to list of shadowed objects
         if (this.cells[this.current_floor][i][j].wall_objs[WALL_ID_CEIL]!=null) {
