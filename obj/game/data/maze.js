@@ -471,7 +471,7 @@ function Maze(my_floor, my_width, my_height) {
     do {
       var temp_loc = {
         floor: this.num_floor-1,
-        row: Math.floor(Math.random()*3),
+        row: Math.floor(Math.random()*2),
         col: Math.floor(Math.random()*2)
       };
       if (this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_CEIL] && this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_FLOOR]) {

@@ -34,7 +34,7 @@ function Game(maze_floor, maze_width, maze_height) {
   do {
     this.maze.pick_start_and_end();
     this.solution = this.maze.solve(this.maze.start_loc, this.maze.end_loc);
-  } while (this.solution.length<40);
+  } while (this.solution.length<20);
   this.maze.cells[this.maze.end_loc.floor][this.maze.end_loc.row][this.maze.end_loc.col].my_exit = new Exit({x: 0, y: 0, width: Maze.EXIT_SIZE, height: Maze.EXIT_SIZE});
   this.player = new Player(this.maze, this);
 
@@ -48,7 +48,7 @@ function Game(maze_floor, maze_width, maze_height) {
   for (var i=0; i<npc_order.length; i++) {
     do {
       var new_place = Math.floor(Math.random()*npc_order.length);
-    } while (new_place!=i);
+    } while (new_place==i);
 
     var temp = npc_order[i];
     npc_order[i] = npc_order[new_place];
