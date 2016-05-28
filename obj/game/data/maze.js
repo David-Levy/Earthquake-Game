@@ -25,6 +25,7 @@ var CELL_DIM = 10;
 //Drawing constants
 var HOLE_SIZE = 50;
 var RAMP_SIZE = 50;
+Maze.EXIT_SIZE = 50;
 var TILE_SIZE = 200;
 Maze.TILE_SIZE = 200;
 var WALL_THICKNESS = 15;
@@ -57,6 +58,9 @@ function Cell(my_loc, my_index) {
   //holds npc if they are at this cell
   this.my_npc = null;
 
+  //holds exit if it is at this cell
+  this.my_exit = null;
+
   //Position of cell on screen
   this.screen_pos = {x: this.loc.col*TILE_SIZE, y: this.loc.row*TILE_SIZE};
 
@@ -79,6 +83,11 @@ function Cell(my_loc, my_index) {
     //Draw npc if they are at this cell
     if (this.my_npc!=null) {
       this.my_npc.draw();
+    }
+
+    //Draw exit if they are at this cell
+    if (this.my_exit!=null) {
+      this.my_exit.draw();
     }
   }
 
@@ -139,6 +148,10 @@ function Cell(my_loc, my_index) {
       this.my_npc.bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(this.my_npc.bounds.height/2);
       this.my_npc.talk_zone.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_npc.talk_zone.bounds.width/2);
       this.my_npc.talk_zone.bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(this.my_npc.talk_zone.bounds.height/2);
+    }
+    if (this.my_exit!=null) {
+      this.my_exit.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_exit.bounds.width/2);
+      this.my_exit.bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(this.my_exit.bounds.height/2);
     }
   }
 }
@@ -702,6 +715,25 @@ function Ramp(bounds) {
   //Drawing Method for ramp
   this.draw = function() {
     context.fillStyle = "green";
+    context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+  }
+}
+
+//************************ Constructor for exit *****************************
+function Exit(bounds) {
+  //Create exit boundaries
+  this.bounds = {
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height,
+    type: Game.RECT_ID
+  };
+  this.obj_type = Game.EXIT_ID;
+
+  //Drawing Method for ramp
+  this.draw = function() {
+    context.fillStyle = "blue";
     context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
   }
 }

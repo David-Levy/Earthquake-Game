@@ -35,8 +35,11 @@ function Game(maze_floor, maze_width, maze_height) {
     this.maze.pick_start_and_end();
     this.solution = this.maze.solve(this.maze.start_loc, this.maze.end_loc);
   } while (this.solution.length<40);
+  this.maze.cells[this.maze.end_loc.floor][this.maze.end_loc.row][this.maze.end_loc.col].my_exit = new Exit({x: 0, y: 0, width: Maze.EXIT_SIZE, height: Maze.EXIT_SIZE});
   this.player = new Player(this.maze, this);
-  console.log(this.solution.length);
+
+  //Test print of path, returns true if pathing has worked
+  //console.log(this.maze.start_loc.floor==this.solution[0].floor && this.maze.start_loc.row==this.solution[0].row && this.maze.start_loc.col==this.solution[0].col && this.maze.end_loc.floor==this.solution[this.solution.length-1].floor && this.maze.end_loc.row==this.solution[this.solution.length-1].row && this.maze.end_loc.col==this.solution[this.solution.length-1].col);
 
   //Set events
   var npc_order = new Array(5);
@@ -58,13 +61,11 @@ function Game(maze_floor, maze_width, maze_height) {
     var temp_loc;
     do {
       random_place = Math.floor((i+1)*npc_avg_dist)+(((Math.floor(Math.random()*1)+1)*-1)*(Math.floor(Math.random()*3)));
-      console.log(random_place);
       temp_loc = {
         floor: this.solution[random_place].floor,
         row: this.solution[random_place].row,
         col: this.solution[random_place].col
       };
-      console.log("hit");
     } while (!this.maze.place_npc(temp_loc, npc_order[i]));
   }
 
