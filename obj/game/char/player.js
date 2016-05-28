@@ -58,6 +58,12 @@ function Player(start_loc, maze, game) {
     this.inventory.battery[i] = new Battery({x: null, y: null});
   }
 
+  //Create party list
+  this.party = new Array(5);
+  for (var i=0; i<this.party.length; i++) {
+    this.party[i] = false;
+  }
+
   //flag to see if player can change floors
   this.can_change_floor = true;
 

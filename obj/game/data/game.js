@@ -9,6 +9,8 @@ Game.RAMP_ID = 2;
 Game.HOLE_ID = 3;
 Game.FLASHLIGHT_ID = 4;
 Game.BATTERY_ID = 5;
+Game.NPC_ID = 6;
+Game.NPC_TALK_ZONE_ID = 7;
 
 //Game state identifiers
 Game.STATE_NORMAL = 0;
@@ -33,6 +35,7 @@ function Game(maze_floor, maze_width, maze_height) {
   this.maze = new Maze(maze_floor, maze_width, maze_height);
   this.player = new Player({x: 38, y: 38}, this.maze, this);
   this.solution = this.maze.solve(this.start_loc, this.end_loc);
+  this.dialogue = null; //Placeholder for when dialogue appears
 
   //Create lighting objects array
   var lighting_objects = new Array();
@@ -56,7 +59,7 @@ function Game(maze_floor, maze_width, maze_height) {
 
     //Turn light on or off
     this.darkmask.lights = this.player.is_flashlight_on() ? [this.player.flashlight] : new Array();
-    
+
     /*
     //Insert flashlight bounds into collision tree
     this.collision_tree.insert(this.player.flashlight_bounds);
@@ -363,6 +366,11 @@ function Game(maze_floor, maze_width, maze_height) {
     //render lighting
     this.render_lighting();
 
+    //draw dialogue
+    if (this.dialogue!=null) {
+      this.dialogue.draw();
+    }
+
     //Draw curtain overlay if not completely transparent
     if (this.curtain_opacity>0) {
       context.globalAlpha = this.curtain_opacity;
@@ -395,16 +403,18 @@ function Game(maze_floor, maze_width, maze_height) {
     this.lighting.objects = new Array();
 
     //Update the player
-    this.player.update(keys, mouse_info);
+    if (this.dialogue==null) {
+      this.player.update(keys, mouse_info);
 
-    //Update the maze
-    this.maze.update(this.lighting);
+      //Update the maze
+      this.maze.update(this.lighting);
 
-    //Check for and handle collisions
-    this.check_collisions();
+      //Check for and handle collisions
+      this.check_collisions();
 
-    //Compute lighting objects
-    this.adjust_lighting(mouse_info);
+    }
+      //Compute lighting objects
+      this.adjust_lighting(mouse_info);
 
     //Adjust curtain fade
     this.curtain_opacity+=this.curtain_fade_speed;
@@ -417,6 +427,12 @@ function Game(maze_floor, maze_width, maze_height) {
       this.curtain_opacity = 0;
       this.curtain_fade_speed = 0;
       this.state = Game.STATE_NORMAL;
+    }
+
+    //Update dialogue if it is present
+    if (this.dialogue!=null) {
+      var in_dialogue = this.dialogue.update(mouse_info);
+      if (!in_dialogue) {this.dialogue = null;}
     }
   }
 }
@@ -432,7 +448,7 @@ Game.collided = function(obj_a, obj_b) {
   }
   //If both objects are circles
   else if (obj_a.bounds.type==Game.CIRCLE_ID && obj_b.bounds.type==Game.CIRCLE_ID) {
-    return Math.sqrt(Math.pow(obj_a.bounds.x-obj_b.bounds.x, 2)+Math.pow(obj_a.bounds.y-obj_b.bounds.y, 2))<obj_a.bounds.radius+obj_b.bounds.radius;
+    return Math.pow(obj_a.bounds.x-obj_b.bounds.x, 2)+Math.pow(obj_a.bounds.y-obj_b.bounds.y, 2)<Math.pow(obj_a.bounds.radius+obj_b.bounds.radius, 2);
   }
   //If object a is a rectangle and object b is a circle
   else if (obj_a.bounds.type==Game.RECT_ID && obj_b.bounds.type==Game.CIRCLE_ID) {
@@ -441,5 +457,17 @@ Game.collided = function(obj_a, obj_b) {
   //If object a is a circle and object b is a rectangle
   else if (obj_a.bounds.type==Game.CIRCLE_ID && obj_b.bounds.type==Game.RECT_ID) {
     return (obj_a.bounds.x>obj_b.bounds.x-obj_a.bounds.radius) && (obj_a.bounds.x<obj_b.bounds.x+obj_b.bounds.width+obj_a.bounds.radius) && (obj_a.bounds.y>obj_b.bounds.y-obj_a.bounds.radius) && (obj_a.bounds.y<obj_b.bounds.y+obj_b.bounds.height+obj_a.bounds.radius);
+  }
+}
+
+//Returns true if the cursor is within the given object
+Game.mouse_over = function(object, mouse_info) {
+  //If object is a rectangle
+  if (object.bounds.type==Game.RECT_ID) {
+    return mouse_info.x>object.bounds.x && mouse_info.x<object.bounds.x+object.bounds.width && mouse_info.y>object.bounds.y && mouse_info.y<object.bounds.y+object.bounds.height;
+  }
+  //If object is a circle
+  else {
+    return Math.pow(object.bounds.x-mouse_info.x, 2)+Math.pow(object.bounds.y-mouse_info.y, 2)<Math.pow(object.bounds.radius, 2);
   }
 }
