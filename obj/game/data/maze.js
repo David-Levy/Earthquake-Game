@@ -506,6 +506,15 @@ function Maze(my_floor, my_width, my_height) {
     } while (this.end_loc==null);
   }
 
+  //********************** Try to place npc at given point *********************
+  this.place_npc = function(loc, character) {
+    if (this.cells[loc.floor][loc.row][loc.col].wall[WALL_ID_CEIL] && this.cells[loc.floor][loc.row][loc.col].wall[WALL_ID_FLOOR] && this.cells[loc.floor][loc.row][loc.col].my_npc==null) {
+      this.cells[loc.floor][loc.row][loc.col].my_npc = new Npc(character, {floor: loc.floor, row: loc.row, col: loc.col});
+      return true;
+    }
+    return false;
+  }
+
   //**************************** Scroll the maze *******************************
   //Attempt to scroll the maze, return false if maze is at upper bound
   this.scroll_up = function(speed) {

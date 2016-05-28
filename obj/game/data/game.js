@@ -37,6 +37,37 @@ function Game(maze_floor, maze_width, maze_height) {
   } while (this.solution.length<40);
   this.player = new Player(this.maze, this);
   console.log(this.solution.length);
+
+  //Set events
+  var npc_order = new Array(5);
+  for (var i=0; i<npc_order.length; i++) {npc_order[i] = i;}
+  //randomize npc order
+  for (var i=0; i<npc_order.length; i++) {
+    do {
+      var new_place = Math.floor(Math.random()*npc_order.length);
+    } while (new_place!=i);
+
+    var temp = npc_order[i];
+    npc_order[i] = npc_order[new_place];
+    npc_order[new_place] = temp;
+  }
+  //Place npcs
+  var npc_avg_dist = this.solution.length/6;
+  for (i=0; i<npc_order.length; i++) {
+    var random_place;
+    var temp_loc;
+    do {
+      random_place = Math.floor((i+1)*npc_avg_dist)+(((Math.floor(Math.random()*1)+1)*-1)*(Math.floor(Math.random()*3)));
+      console.log(random_place);
+      temp_loc = {
+        floor: this.solution[random_place].floor,
+        row: this.solution[random_place].row,
+        col: this.solution[random_place].col
+      };
+      console.log("hit");
+    } while (!this.maze.place_npc(temp_loc, npc_order[i]));
+  }
+
   this.dialogue = null; //Placeholder for when dialogue appears
   //Marks tile location of the npc that is talking
   this.dialogue_pos = {
@@ -44,7 +75,6 @@ function Game(maze_floor, maze_width, maze_height) {
     row: 0,
     col: 0
   };
-  this.maze.cells[4][2][2].my_npc = new Npc(Npc.PINKWOMAN_ID, {floor: 4, row: 2, col: 2});
 
   //Create lighting objects array
   var lighting_objects = new Array();
