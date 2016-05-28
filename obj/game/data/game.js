@@ -31,10 +31,17 @@ function Game(maze_floor, maze_width, maze_height) {
 
   this.collision_tree = new Collision_Tree(0, {x: 0, y:0, width: canvas.width, height: canvas.height});
   this.maze = new Maze(maze_floor, maze_width, maze_height);
+  var counter = 0; //used to check number of failed attempts to create path
   do {
+    //Catchs a stuck build and redoes it
+    if (counter<20) {counter++;}
+    else {
+      counter = 0;
+      this.maze = new Maze(maze_floor, maze_width, maze_height);
+    }
     this.maze.pick_start_and_end();
     this.solution = this.maze.solve(this.maze.start_loc, this.maze.end_loc);
-  } while (this.solution.length<20);
+  } while (this.solution.length<50);
   this.maze.cells[this.maze.end_loc.floor][this.maze.end_loc.row][this.maze.end_loc.col].my_exit = new Exit({x: 0, y: 0, width: Maze.EXIT_SIZE, height: Maze.EXIT_SIZE});
   this.player = new Player(this.maze, this);
 
@@ -59,13 +66,15 @@ function Game(maze_floor, maze_width, maze_height) {
   for (i=0; i<npc_order.length; i++) {
     var random_place;
     var temp_loc;
+    var counter = 0;
     do {
-      random_place = Math.floor((i+1)*npc_avg_dist)+(((Math.floor(Math.random()*1)+1)*-1)*(Math.floor(Math.random()*3)));
+      random_place = Math.floor((i+1)*npc_avg_dist)+(((Math.floor(Math.random()*1)+1)*-1)*(Math.floor(Math.random()*(3+Math.floor(counter/10)))));
       temp_loc = {
         floor: this.solution[random_place].floor,
         row: this.solution[random_place].row,
         col: this.solution[random_place].col
       };
+      counter++;
     } while (!this.maze.place_npc(temp_loc, npc_order[i]));
   }
 
