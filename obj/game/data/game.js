@@ -36,6 +36,13 @@ function Game(maze_floor, maze_width, maze_height) {
   this.player = new Player({x: 38, y: 38}, this.maze, this);
   this.solution = this.maze.solve(this.start_loc, this.end_loc);
   this.dialogue = null; //Placeholder for when dialogue appears
+  //Marks location of the npc that is talking
+  this.dialogue_pos = {
+    floor: 0,
+    row: 0,
+    col: 0
+  };
+  this.maze.cells[4][2][2].my_npc = new Npc(Npc.OLDMAN_ID, {floor: 4, row: 2, col: 2});
 
   //Create lighting objects array
   var lighting_objects = new Array();
@@ -330,18 +337,23 @@ function Game(maze_floor, maze_width, maze_height) {
   }
 
   //Check for collisions
-  this.check_collisions = function(keys) {
+  this.check_collisions = function(mouse_info) {
     this.collision_tree.clear();
 
     //Insert Player
     this.collision_tree.insert(this.player);
 
-    //Insert walls
+    //Insert walls, npcs, and npc talk zones
     for (var i=0; i<this.maze.drawable_cells.length; i++) {
       for (var j=0; j<this.maze.drawable_cells[i].wall_objs.length; j++) {
         if (this.maze.drawable_cells[i].wall_objs[j]!=null) {
           this.collision_tree.insert(this.maze.drawable_cells[i].wall_objs[j]);
         }
+      }
+
+      if (this.maze.drawable_cells[i].my_npc!=null) {
+        this.collision_tree.insert(this.maze.drawable_cells[i].my_npc);
+        this.collision_tree.insert(this.maze.drawable_cells[i].my_npc.talk_zone);
       }
     }
 
@@ -349,7 +361,7 @@ function Game(maze_floor, maze_width, maze_height) {
     var possible_collisions = this.collision_tree.get_objects(this.player);
 
     //Resolve collisions
-    this.player.resolve_collisions(possible_collisions);
+    this.player.resolve_collisions(possible_collisions, mouse_info);
   }
 
   //Drawing method for game
@@ -410,11 +422,11 @@ function Game(maze_floor, maze_width, maze_height) {
       this.maze.update(this.lighting);
 
       //Check for and handle collisions
-      this.check_collisions();
+      this.check_collisions(mouse_info);
 
-    }
       //Compute lighting objects
       this.adjust_lighting(mouse_info);
+    }
 
     //Adjust curtain fade
     this.curtain_opacity+=this.curtain_fade_speed;
@@ -432,7 +444,13 @@ function Game(maze_floor, maze_width, maze_height) {
     //Update dialogue if it is present
     if (this.dialogue!=null) {
       var in_dialogue = this.dialogue.update(mouse_info);
-      if (!in_dialogue) {this.dialogue = null;}
+      if (!in_dialogue) {
+        //Remove character from map if they are now in your party
+        if (this.player.party[this.dialogue.which_character]) {
+          this.maze.cells[this.dialogue_pos.floor][this.dialogue_pos.row][this.dialogue_pos.col].my_npc = null;
+        }
+        this.dialogue = null;
+      }
     }
   }
 }

@@ -142,14 +142,14 @@ function Player(start_loc, maze, game) {
   }
 
   //Checks for collisions and resolves them
-  this.resolve_collisions = function(possible_collisions) {
+  this.resolve_collisions = function(possible_collisions, mouse_info) {
     //flag used to determine if player is touching a hole or ramp
     var touching_floor_change_obj = false;
 
     for (var i=0; i<possible_collisions.length; i++) {
       if (possible_collisions[i]!=this && Game.collided(this, possible_collisions[i])) {
         //Check for wall type objects
-        if (possible_collisions[i].obj_type==Game.WALL_ID) {
+        if (possible_collisions[i].obj_type==Game.WALL_ID || possible_collisions[i].obj_type==Game.NPC_ID) {
           //If object has collided from the top or bottom
           if (this.prev_loc.x<possible_collisions[i].bounds.x+possible_collisions[i].bounds.width && this.prev_loc.x+this.bounds.width>possible_collisions[i].bounds.x) {
             if (this.prev_loc.y<possible_collisions[i].bounds.y) {
@@ -210,6 +210,13 @@ function Player(start_loc, maze, game) {
               this.can_change_floor = false;
             }
           }
+        }
+        //Check if player is close enough to talk to an npc
+        else if (possible_collisions[i].obj_type==Game.NPC_TALK_ZONE_ID && mouse_info.last_clicked_left==true && mouse_info.clicked_left==false) {
+          this.my_game.dialogue = new Dialogue(possible_collisions[i].identity, this.my_game);
+          this.my_game.dialogue_pos.floor = possible_collisions[i].loc.floor;
+          this.my_game.dialogue_pos.row = possible_collisions[i].loc.row;
+          this.my_game.dialogue_pos.col = possible_collisions[i].loc.col;
         }
       }
     }

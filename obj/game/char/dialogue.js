@@ -3,7 +3,7 @@
 var canvas;
 var context;
 
-function Dialogue(character, player) {
+function Dialogue(character, game) {
   canvas = $("#canvas")[0];
   context = canvas.getContext("2d");
 
@@ -61,8 +61,8 @@ function Dialogue(character, player) {
     }
   };
 
-  //Hook to player object
-  this.my_player = player;
+  //Hook to game object
+  this.my_game = game;
 
   // variables used as input for dialogue function
   this.which_character = character;
@@ -77,7 +77,7 @@ function Dialogue(character, player) {
   }
   else if(this.which_character==Npc.OLDMAN_ID){
     this.what_say = "Have you seen my grandson? I lost track of him in the rubble.";
-    if(this.my_player.party[Npc.GREENBOY_ID]){
+    if(this.my_game.player.party[Npc.GREENBOY_ID]){
       this.option1 = "He's here. You two should follow me.";
       this.option2 = "He's here. You two stay safe here.";
     } else{
@@ -88,7 +88,7 @@ function Dialogue(character, player) {
   else if(this.which_character==Npc.GREENBOY_ID){
     this.what_say = "I'm so scared! My flashlight ran out of batteries, and everything moved around in the shaking.";
     this.option1 = "Here, I have an extra battery.";
-    if(this.my_player.party[Npc.OLDMAN_ID]){
+    if(this.my_game.player.party[Npc.OLDMAN_ID]){
       this.option2 = "You and your grandpa stay safe here.";
     } else{
       this.option2 = "You should wait here for a rescuer.";
@@ -113,27 +113,27 @@ function Dialogue(character, player) {
   	if(!this.end_dialogue){
   	  if(this.which_character == Npc.BLUEGIRL_ID){
   		  this.what_say = "Thank you! That feels so much better.";
-        this.my_player.inventory.med_kit--;
+        this.my_game.player.inventory.med_kit--;
   	  }
   	  else if(this.which_character == Npc.OLDMAN_ID){
   		  this.what_say = "Thank you so much. Im glad such kind people exist.";
   	  }
   	  else if(this.which_character == Npc.GREENBOY_ID){
   		  this.what_say = "Thanks! It's much easier to see now.";
-        this.my_player.inventory.battery.pop();
+        this.my_game.player.inventory.battery.pop();
   	  }
   	  else if(this.which_character == Npc.PINKWOMAN_ID){
   		  this.what_say = "Thank you. I can feel my energy rising already.";
-        this.my_player.inventory.med_kit--;
+        this.my_game.player.inventory.med_kit--;
   	  }
   	  else if(this.which_character == Npc.RESCUEGUY_ID){
   		  this.what_say = "Thanks! I will let them know there are survivors.";
-        this.my_player.inventory.battery.pop();
+        this.my_game.player.inventory.battery.pop();
     	}
   	  this.option1 = "Sure thing.";
   	  this.option2 = "No problem.";
       this.end_dialogue = true;
-      this.my_player.party[this.which_character] = true;
+      this.my_game.player.party[this.which_character] = true;
   	} else{
   		this.end_dialogue = false;
   	}

@@ -50,6 +50,9 @@ function Cell(my_loc, my_index) {
   //Location of the cell in the grid
   this.loc = {row : my_loc.row, col: my_loc.col, floor: my_loc.floor};
 
+  //holds npc if they are at this cell
+  this.my_npc = null;
+
   //Position of cell on screen
   this.screen_pos = {x: this.loc.col*TILE_SIZE, y: this.loc.row*TILE_SIZE};
 
@@ -67,6 +70,11 @@ function Cell(my_loc, my_index) {
     //Draw walls
     for (var i=0; i<this.wall_objs.length; i++) {
       if (this.wall_objs[i]!=null) {this.wall_objs[i].draw();}
+    }
+
+    //Draw npc if they are at this cell
+    if (this.my_npc!=null) {
+      this.my_npc.draw();
     }
   }
 
@@ -121,6 +129,12 @@ function Cell(my_loc, my_index) {
     if (this.wall_objs[WALL_ID_FLOOR]!=null && this.wall_objs[WALL_ID_FLOOR]!=undefined) {
       this.wall_objs[WALL_ID_FLOOR].bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(HOLE_SIZE/2);
       this.wall_objs[WALL_ID_FLOOR].bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(HOLE_SIZE/2);
+    }
+    if (this.my_npc!=null) {
+      this.my_npc.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_npc.bounds.width/2);
+      this.my_npc.bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(this.my_npc.bounds.height/2);
+      this.my_npc.talk_zone.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_npc.talk_zone.bounds.width/2);
+      this.my_npc.talk_zone.bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(this.my_npc.talk_zone.bounds.height/2);
     }
   }
 }
