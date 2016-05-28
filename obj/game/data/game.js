@@ -29,20 +29,22 @@ function Game(maze_floor, maze_width, maze_height) {
   this.curtain_opacity = 0; //Black overlay used for fade-in fade-out
   this.curtain_fade_speed = 0; //Rate at which curtain fades in and out
 
-  this.start_loc = {floor: maze_floor-1, row: 0, col: 0};
-  this.end_loc = {floor: 0, row: maze_height-1, col: maze_width-1};
   this.collision_tree = new Collision_Tree(0, {x: 0, y:0, width: canvas.width, height: canvas.height});
   this.maze = new Maze(maze_floor, maze_width, maze_height);
-  this.player = new Player({x: 38, y: 38}, this.maze, this);
-  this.solution = this.maze.solve(this.start_loc, this.end_loc);
+  do {
+    this.maze.pick_start_and_end();
+    this.solution = this.maze.solve(this.maze.start_loc, this.maze.end_loc);
+  } while (this.solution.length<40);
+  this.player = new Player(this.maze, this);
+  console.log(this.solution.length);
   this.dialogue = null; //Placeholder for when dialogue appears
-  //Marks location of the npc that is talking
+  //Marks tile location of the npc that is talking
   this.dialogue_pos = {
     floor: 0,
     row: 0,
     col: 0
   };
-  this.maze.cells[4][2][2].my_npc = new Npc(Npc.OLDMAN_ID, {floor: 4, row: 2, col: 2});
+  this.maze.cells[4][2][2].my_npc = new Npc(Npc.PINKWOMAN_ID, {floor: 4, row: 2, col: 2});
 
   //Create lighting objects array
   var lighting_objects = new Array();
@@ -377,6 +379,11 @@ function Game(maze_floor, maze_width, maze_height) {
 
     //render lighting
     this.render_lighting();
+
+    //Draw the can click icon if enabled
+    if (this.player.show_can_click) {
+      context.drawImage(this.player.can_click_sprite.get_image(), this.player.bounds.x+(this.player.bounds.width/2)-(Player.CAN_CLICK_DIM/2), this.player.bounds.y-Player.CAN_CLICK_BUFFER-Player.CAN_CLICK_DIM, Player.CAN_CLICK_DIM, Player.CAN_CLICK_DIM);
+    }
 
     //draw dialogue
     if (this.dialogue!=null) {

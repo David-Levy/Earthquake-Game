@@ -4,6 +4,12 @@ var context;
 //Size of player
 var PLAYER_DIM = 50;
 
+//Size of can click icon
+Player.CAN_CLICK_DIM = 30;
+
+//Distance from top of player's head to bottom of can click sprite
+Player.CAN_CLICK_BUFFER = 5;
+
 //Player movement speed
 var PLAYER_SPEED_NORM = 1.85;
 var PLAYER_SPEED_DIAG = Math.sqrt(Math.pow(PLAYER_SPEED_NORM, 2)+Math.pow(PLAYER_SPEED_NORM, 2))/2;
@@ -29,7 +35,7 @@ Player.FLASHLIGHT_COLOR_GREEN = 220;
 Player.FLASHLIGHT_COLOR_BLUE = 150;
 
 //Player Object
-function Player(start_loc, maze, game) {
+function Player(maze, game) {
   canvas = $("#canvas")[0];
   context = canvas.getContext("2d");
 
@@ -48,6 +54,10 @@ function Player(start_loc, maze, game) {
   //Create sprite object for player
   this.my_sprite = new Sprite(Sprite.main_char_images, 10);
   this.sprite_rotation = 0;
+
+  //Create sprite object for can click icon
+  this.can_click_sprite = new Sprite(Sprite.can_click_left, 60);
+  this.show_can_click = false;
 
   //Create inventory for player
   this.inventory = {
@@ -76,8 +86,8 @@ function Player(start_loc, maze, game) {
   this.my_destination_set = false;
 
   this.bounds = {
-    x: start_loc.x,
-    y: start_loc.y,
+    x: (this.my_maze.start_loc.col*Maze.TILE_SIZE)+(Maze.TILE_SIZE/2)-(PLAYER_DIM/2),
+    y: (this.my_maze.start_loc.row*Maze.TILE_SIZE)+(Maze.TILE_SIZE/2)-(PLAYER_DIM/2),
     width: PLAYER_DIM,
     height: PLAYER_DIM,
     type: Game.RECT_ID
@@ -132,6 +142,7 @@ function Player(start_loc, maze, game) {
     context.rotate(this.sprite_rotation);
     context.drawImage(this.my_sprite.get_image(),-(this.bounds.width)/2, -(this.bounds.height)/2, this.bounds.width, this.bounds.height);
     context.restore();
+
 		//context.fillStyle = "blue";
 		//context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
 	}
@@ -212,11 +223,17 @@ function Player(start_loc, maze, game) {
           }
         }
         //Check if player is close enough to talk to an npc
-        else if (possible_collisions[i].obj_type==Game.NPC_TALK_ZONE_ID && mouse_info.last_clicked_left==true && mouse_info.clicked_left==false) {
-          this.my_game.dialogue = new Dialogue(possible_collisions[i].identity, this.my_game);
-          this.my_game.dialogue_pos.floor = possible_collisions[i].loc.floor;
-          this.my_game.dialogue_pos.row = possible_collisions[i].loc.row;
-          this.my_game.dialogue_pos.col = possible_collisions[i].loc.col;
+        else if (possible_collisions[i].obj_type==Game.NPC_TALK_ZONE_ID) {
+          if (mouse_info.last_clicked_left==true && mouse_info.clicked_left==false) {
+            this.my_game.dialogue = new Dialogue(possible_collisions[i].identity, this.my_game);
+            this.my_game.dialogue_pos.floor = possible_collisions[i].loc.floor;
+            this.my_game.dialogue_pos.row = possible_collisions[i].loc.row;
+            this.my_game.dialogue_pos.col = possible_collisions[i].loc.col;
+            this.show_can_click = false;
+          }
+          else {
+            this.show_can_click = true;
+          }
         }
       }
     }
@@ -227,8 +244,10 @@ function Player(start_loc, maze, game) {
 
   //Update Player
   this.update = function(keys, mouse_info) {
-    //update the sprite
+    //update the sprites
     this.my_sprite.update();
+    this.can_click_sprite.update();
+    this.show_can_click = false;
 
     this.sprite_rotation = Math.atan2(mouse_info.y-this.bounds.y-(this.bounds.height/2), mouse_info.x-this.bounds.x-(this.bounds.width/2))+(Math.PI/2);
 

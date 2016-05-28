@@ -50,6 +50,10 @@ function Cell(my_loc, my_index) {
   //Location of the cell in the grid
   this.loc = {row : my_loc.row, col: my_loc.col, floor: my_loc.floor};
 
+  //Location of starting and ending cells
+  this.start_loc = null;
+  this.end_loc = null;
+
   //holds npc if they are at this cell
   this.my_npc = null;
 
@@ -443,6 +447,63 @@ function Maze(my_floor, my_width, my_height) {
       context.arc((path[i].col*CELL_DIM)+(CELL_DIM/2), (path[i].row*CELL_DIM)+(CELL_DIM/2), (CELL_DIM/3), Math.PI*2, false);
       context.fill();
     }
+  }
+
+  //*********************** Pick path start and end points *********************
+  this.pick_start_and_end = function() {
+    this.start_loc = null;
+    this.end_loc = null;
+
+    //Pick start point
+    do {
+      var temp_loc = {
+        floor: this.num_floor-1,
+        row: Math.floor(Math.random()*3),
+        col: Math.floor(Math.random()*2)
+      };
+      if (this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_CEIL] && this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_FLOOR]) {
+        this.start_loc = {
+          floor: temp_loc.floor,
+          row: temp_loc.row,
+          col: temp_loc.col
+        };
+      }
+    } while (this.start_loc==null);
+
+    //Pick end point
+    do {
+      var side = Math.floor(Math.random()*4);
+      var temp_loc = {
+        floor: 0,
+        row: 0,
+        col: 0
+      };
+
+      if (side==0) {
+        temp_loc.row = this.num_row-1;
+        temp_loc.col = Math.floor(Math.random()*this.num_col);
+      }
+      else if (side==1) {
+        temp_loc.row = 0;
+        temp_loc.col = Math.floor(Math.random()*this.num_col);
+      }
+      else if (side==2) {
+        temp_loc.row = Math.floor(Math.random()*this.num_row);
+        temp_loc.col = this.num_col-1;
+      }
+      else if (side==3) {
+        temp_loc.row = Math.floor(Math.random()*this.num_row);
+        temp_loc.col = 0;
+      }
+
+      if (this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_CEIL] && this.cells[temp_loc.floor][temp_loc.row][temp_loc.col].wall[WALL_ID_FLOOR]) {
+        this.end_loc = {
+          floor: temp_loc.floor,
+          row: temp_loc.row,
+          col: temp_loc.col
+        };
+      }
+    } while (this.end_loc==null);
   }
 
   //**************************** Scroll the maze *******************************

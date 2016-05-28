@@ -97,12 +97,12 @@ function Dialogue(character, game) {
   if(this.which_character==Npc.PINKWOMAN_ID){
     this.what_say = "I feel so weary. Do you have some food or water in one of your health kits?";
     this.option1 = "Of course. Have this one.";
-    this.option2 = "Im sorry, I cant spare any.";
+    this.option2 = "I'm sorry, I can't spare any.";
   }
   if(this.which_character==Npc.RESCUEGUY_ID){
     this.what_say = "Do you have any batteries? I need to radio my team, but I'm all out.";
     this.option1 = "Sure, take this one.";
-    this.option2 = "No, sorry. I dont have any extras.";
+    this.option2 = "No, sorry. I don't have any extras.";
   }
 
   // true if dialogue is at end of conversation
