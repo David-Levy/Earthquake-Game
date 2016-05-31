@@ -3,6 +3,7 @@ var context;
 
 //Size of npc
 var NPC_DIM = 50;
+Npc.NPC_DIM = 50;
 var TALK_BUFFER = 20;
 
 Npc.BLUEGIRL_ID = 0;

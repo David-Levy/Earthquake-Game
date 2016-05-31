@@ -489,13 +489,13 @@ function Game(maze_floor, maze_width, maze_height) {
     //Draw the player
     this.player.draw();
 
-    //render lighting
-    this.render_lighting();
-
     //Draw the can click icon if enabled
     if (this.player.show_can_click) {
-      context.drawImage(this.player.can_click_sprite.get_image(), this.player.bounds.x+(this.player.bounds.width/2)-(Player.CAN_CLICK_DIM/2), this.player.bounds.y-Player.CAN_CLICK_BUFFER-Player.CAN_CLICK_DIM, Player.CAN_CLICK_DIM, Player.CAN_CLICK_DIM);
+      context.drawImage(this.player.can_click_sprite.get_image(), this.player.can_click_pos.x, this.player.can_click_pos.y, Player.CAN_CLICK_DIM, Player.CAN_CLICK_DIM);
     }
+
+    //render lighting
+    this.render_lighting();
 
     //draw dialogue
     if (this.dialogue!=null) {
