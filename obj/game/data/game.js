@@ -102,7 +102,7 @@ function Game(maze_floor, maze_width, maze_height) {
   this.background_music = new Howl({
     urls: [Game.BG_MUSIC_URL+'.mp3', Game.BG_MUSIC_URL+'.ogg'],
     loop: true,
-    autoplay: true,
+    autoplay: false,
     volume: 0.5
   });
 

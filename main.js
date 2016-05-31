@@ -186,7 +186,10 @@ $(document).ready(function(){
     context.font = "40px Trebuchet MS";
     context.fillText("Loading: " + Math.round(asset_count*100/NUM_ASSETS) + "% Complete", canvas.width/2, canvas.height/2);
 
-    if (asset_count==NUM_ASSETS) {setInterval(game_loop, 17);}
+    if (asset_count==NUM_ASSETS) {
+      my_state.game.background_music.play();
+      setInterval(game_loop, 17);
+    }
   }
 
   function update() {
