@@ -34,7 +34,7 @@ var KEY_CODE_LEFT = 37;//Left arrow
 var KEY_CODE_RIGHT = 39;//Right arrow
 
 var MAX_BATT_CHANGE_TIME = 150;
-var BATT_CHANGE_SOUND_TRIGGER_TIME = 105;
+var BATT_CHANGE_SOUND_TRIGGER_TIME = 135;
 
 //Define base color of flashlight
 Player.FLASHLIGHT_COLOR_RED = 250;
