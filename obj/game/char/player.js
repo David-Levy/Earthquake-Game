@@ -41,6 +41,13 @@ Player.FLASHLIGHT_COLOR_RED = 250;
 Player.FLASHLIGHT_COLOR_GREEN = 220;
 Player.FLASHLIGHT_COLOR_BLUE = 150;
 
+//Flashlight flicker properties
+Player.FLASHLIGHT_MIN_BRIGHTNESS = 25;
+Player.FLASHLIGHT_MAX_DISTANCE = 120;
+Player.FLASHLIGHT_MIN_DISTANCE = 60;
+Player.FLASHLIGHT_MAX_DIM_RATE = 3;
+Player.FLASHLIGHT_MIN_DIM_RATE = 1.8;
+
 //Player Object
 function Player(maze, game) {
   canvas = $("#canvas")[0];
@@ -120,7 +127,7 @@ function Player(maze, game) {
   this.flashlight = new illuminated.Lamp({
     position: new illuminated.Vec2(this.bounds.x+this.bounds.width, this.bounds.y+(this.bounds.height/2)),
     diffuse: 0.8,
-    distance: 120,
+    distance: Player.FLASHLIGHT_MAX_DISTANCE,
     radius: 10,
     samples: 3,
     roughness: 0.99,
@@ -138,11 +145,17 @@ function Player(maze, game) {
     obj_type: Game.FLASHLIGHT_ID
   };
 
+  //Flashlight flicker variables
+  this.flashlight_target_dim = 1;
+  this.flashlight_dim_rate = 0;
+
   //Lighten or darken flashlight
   this.change_flashlight_brightness = function(percent_change) {
     this.flashlight_color.brightness+=percent_change;
+    this.my_game.curtain_fade_speed = 0;
+    this.my_game.curtain_opacity = 1-this.flashlight_color.brightness;
     if (this.flashlight_color.brightness>1) {this.flashlight_color.brightness = 1;}
-    else if (this.flashlight_color.brightness<0) {this.flashlight_color.brightness = 0;}
+    else if (this.flashlight_color.brightness<(Player.FLASHLIGHT_MIN_BRIGHTNESS/100)) {this.flashlight_color.brightness = Player.FLASHLIGHT_MIN_BRIGHTNESS/100;}
     this.flashlight_color.red = Math.round(Math.min(Math.max(0, Player.FLASHLIGHT_COLOR_RED+((this.flashlight_color.brightness-1)*Player.FLASHLIGHT_COLOR_RED)), Player.FLASHLIGHT_COLOR_RED));
     this.flashlight_color.green = Math.round(Math.min(Math.max(0, Player.FLASHLIGHT_COLOR_GREEN+((this.flashlight_color.brightness-1)*Player.FLASHLIGHT_COLOR_GREEN)), Player.FLASHLIGHT_COLOR_GREEN));
     this.flashlight_color.blue = Math.round(Math.min(Math.max(0, Player.FLASHLIGHT_COLOR_BLUE+((this.flashlight_color.brightness-1)*Player.FLASHLIGHT_COLOR_BLUE)), Player.FLASHLIGHT_COLOR_BLUE));
@@ -161,6 +174,26 @@ function Player(maze, game) {
 		//context.fillStyle = "blue";
 		//context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
 	}
+
+  //flicker flashlight
+  this.flashlight_flicker = function() {
+    //Adjust brightness and distance
+    this.change_flashlight_brightness(this.flashlight_dim_rate);
+
+    //Check if at target brightness
+    if (this.flashlight_dim_rate>0) {
+      if (this.flashlight_target_dim<=this.flashlight_color.brightness) {
+        this.flashlight_target_dim = (Math.floor(Math.random()*(100-Player.FLASHLIGHT_MIN_BRIGHTNESS))+Player.FLASHLIGHT_MIN_BRIGHTNESS)/100;
+        this.flashlight_dim_rate = ((this.flashlight_target_dim-this.flashlight_color.brightness)/Math.abs(this.flashlight_target_dim-this.flashlight_color.brightness))*(Math.floor(Math.random()*(Player.FLASHLIGHT_MAX_DIM_RATE-Player.FLASHLIGHT_MIN_DIM_RATE))+Player.FLASHLIGHT_MIN_DIM_RATE)/100;
+      }
+    }
+    else {
+      if (this.flashlight_target_dim>=this.flashlight_color.brightness) {
+        this.flashlight_target_dim = (Math.floor(Math.random()*(100-Player.FLASHLIGHT_MIN_BRIGHTNESS))+Player.FLASHLIGHT_MIN_BRIGHTNESS)/100;
+        this.flashlight_dim_rate = ((this.flashlight_target_dim-this.flashlight_color.brightness)/Math.abs(this.flashlight_target_dim-this.flashlight_color.brightness))*(Math.floor(Math.random()*(Player.FLASHLIGHT_MAX_DIM_RATE-Player.FLASHLIGHT_MIN_DIM_RATE))+Player.FLASHLIGHT_MIN_DIM_RATE)/100;
+      }
+    }
+  }
 
   //Returns true if flashlight is on
   this.is_flashlight_on = function() {
@@ -245,7 +278,6 @@ function Player(maze, game) {
             this.my_game.dialogue_pos.row = possible_collisions[i].loc.row;
             this.my_game.dialogue_pos.col = possible_collisions[i].loc.col;
             this.show_can_click = false;
-            console.log("hit1");
             this.my_game.maze.sound_manager.pause_all();
           }
           else {
@@ -277,7 +309,7 @@ function Player(maze, game) {
 
     //Move based on player input if in normal state
     if (this.my_game.state==Game.STATE_NORMAL) {
-      //perform battery applications
+      //perform battery actions
       if (this.inventory.battery.length>0) {
         if (!this.changing_battery) {
           this.inventory.battery[0].update();
@@ -286,6 +318,9 @@ function Player(maze, game) {
             this.inventory.battery.shift();
             this.changing_battery = true;
           }
+          else if (this.inventory.battery[0].life<=this.inventory.battery[0].warn_point) {
+            this.flashlight_flicker();
+          }
         }
         else {
           //Delay for player to change battery
@@ -293,6 +328,9 @@ function Player(maze, game) {
           if (this.batt_change_time==0) {
             this.batt_change_time = MAX_BATT_CHANGE_TIME;
             this.changing_battery = false;
+            //Reset flashlight brightness and distance
+            this.change_flashlight_brightness(1);
+            this.my_game.curtain_opacity = 0;
           }
           else if (this.batt_change_time==BATT_CHANGE_SOUND_TRIGGER_TIME) {
             this.batt_change_sound.play();

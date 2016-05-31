@@ -683,7 +683,7 @@ function Maze(my_floor, my_width, my_height) {
           lighting.objects.push(new illuminated.RectangleObject({ topleft: new illuminated.Vec2(this.cells[this.current_floor][i][j].wall_objs[WALL_ID_CEIL].bounds.x, this.cells[this.current_floor][i][j].wall_objs[WALL_ID_CEIL].bounds.y), bottomright: new illuminated.Vec2(this.cells[this.current_floor][i][j].wall_objs[WALL_ID_CEIL].bounds.x+this.cells[this.current_floor][i][j].wall_objs[WALL_ID_CEIL].bounds.width, this.cells[this.current_floor][i][j].wall_objs[WALL_ID_CEIL].bounds.y+this.cells[this.current_floor][i][j].wall_objs[WALL_ID_CEIL].bounds.height) }));
         }
         if (this.cells[this.current_floor][i][j].my_npc!=null) {
-          lighting.objects.push(new illuminated.DiscObject({ center: new illuminated.Vec2(this.cells[this.current_floor][i][j].my_npc.bounds.x+(this.cells[this.current_floor][i][j].my_npc.bounds.width/2), this.cells[this.current_floor][i][j].my_npc.bounds.y+(this.cells[this.current_floor][i][j].my_npc.bounds.height/2)), radius: (this.cells[this.current_floor][i][j].my_npc.bounds.height/2)-7 }));
+          lighting.objects.push(new illuminated.DiscObject({ center: new illuminated.Vec2(this.cells[this.current_floor][i][j].my_npc.bounds.x+(this.cells[this.current_floor][i][j].my_npc.bounds.width/2), this.cells[this.current_floor][i][j].my_npc.bounds.y+(this.cells[this.current_floor][i][j].my_npc.bounds.height/2)), radius: (this.cells[this.current_floor][i][j].my_npc.bounds.height/2)-6 }));
         }
         count.col++;
       }
