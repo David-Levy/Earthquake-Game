@@ -11,7 +11,7 @@ Npc.GREENBOY_ID = 2;
 Npc.PINKWOMAN_ID = 3;
 Npc.RESCUEGUY_ID = 4;
 
-function Npc(character, my_tile) {
+function Npc(character, my_tile, sound) {
   canvas = $("#canvas")[0];
   context = canvas.getContext("2d");
 
@@ -26,6 +26,8 @@ function Npc(character, my_tile) {
     type: Game.RECT_ID
   };
   this.obj_type = Game.NPC_ID;
+
+  this.my_sound = sound;
 
   //object to represent the area in which player can talk to a npc
   this.talk_zone = {
