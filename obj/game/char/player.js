@@ -8,14 +8,17 @@ var PLAYER_DIM = 50;
 Player.CAN_CLICK_DIM = 30;
 
 //Distance from top of player's head to bottom of can click sprite
-Player.CAN_CLICK_BUFFER = 5;
+Player.CAN_CLICK_BUFFER = 10;
+
+//Hearing radius of the player
+Player.HEARING_RADIUS = Maze.TILE_SIZE*3;
 
 //Player movement speed
-var PLAYER_SPEED_NORM = 1.85;
+var PLAYER_SPEED_NORM = 2;
 var PLAYER_SPEED_DIAG = Math.sqrt(Math.pow(PLAYER_SPEED_NORM, 2)+Math.pow(PLAYER_SPEED_NORM, 2))/2;
 
 //Points at which screen will scroll
-var SCROLL_POINT_HOR = 225;
+var SCROLL_POINT_HOR = 275;
 var SCROLL_POINT_VERT = 225;
 
 var KEY_CODE_D = 68;//d
@@ -230,6 +233,8 @@ function Player(maze, game) {
             this.my_game.dialogue_pos.row = possible_collisions[i].loc.row;
             this.my_game.dialogue_pos.col = possible_collisions[i].loc.col;
             this.show_can_click = false;
+            console.log("hit1");
+            this.my_game.maze.sound_manager.pause_all();
           }
           else {
             this.show_can_click = true;

@@ -161,6 +161,9 @@ function Maze(my_floor, my_width, my_height) {
   canvas = $("#canvas")[0];
   context = canvas.getContext("2d");
 
+  //Create positional sound manager
+  this.sound_manager = new Pos_Sound_Manager(my_floor);
+
   //console.log("Maze Creation Begin");
   //Set map view properties
   this.view = {
@@ -174,7 +177,10 @@ function Maze(my_floor, my_width, my_height) {
     y_max: (my_height*TILE_SIZE)-canvas.height
   };
   this.view_prev_loc = {x: 0, y:0};
+  this.view_start_cell = {floor: my_floor, row: 0, col: 0};
+  this.view_tile_offset = {width: 0, height: 0};
   this.drawable_cells = new Array();
+  this.offscreen_sounds = new Array();
   this.view_num_tiles = {width: Math.floor(this.view.width/TILE_SIZE), height: Math.floor(this.view.height/TILE_SIZE)};
 
   //Set the number of floors, rows and columns in maze
@@ -522,7 +528,7 @@ function Maze(my_floor, my_width, my_height) {
   //********************** Try to place npc at given point *********************
   this.place_npc = function(loc, character) {
     if (this.cells[loc.floor][loc.row][loc.col].wall[WALL_ID_CEIL] && this.cells[loc.floor][loc.row][loc.col].wall[WALL_ID_FLOOR] && this.cells[loc.floor][loc.row][loc.col].my_npc==null) {
-      this.cells[loc.floor][loc.row][loc.col].my_npc = new Npc(character, {floor: loc.floor, row: loc.row, col: loc.col});
+      this.cells[loc.floor][loc.row][loc.col].my_npc = new Npc(character, {floor: loc.floor, row: loc.row, col: loc.col}, this.sound_manager.insert({floor: loc.floor, row: loc.row, col: loc.col}, Pos_Sound_Manager.NPC_ID));
       return true;
     }
     return false;
@@ -645,8 +651,11 @@ function Maze(my_floor, my_width, my_height) {
   //**************************** Update the maze *******************************
   this.update = function(lighting) {
     this.drawable_cells = new Array();
+    this.offscreen_sounds = new Array();
     var start_cell = {floor: this.current_floor, row: Math.floor(this.view.y/TILE_SIZE), col: Math.floor(this.view.x/TILE_SIZE)};
+    this.view_start_cell = {floor: start_cell.floor, row: start_cell.row, col: start_cell.col};
     var tile_offset = {width: this.view.x%TILE_SIZE, height: this.view.y%TILE_SIZE};
+    this.view_tile_offset = {width: tile_offset.width, height: tile_offset.height};
 
     //mark last row and col to draw
     var last_col = (start_cell.col+this.view_num_tiles.width+2)>this.num_col ? this.num_col : start_cell.col+this.view_num_tiles.width+2;
@@ -677,6 +686,13 @@ function Maze(my_floor, my_width, my_height) {
       }
       count.row++;
       count.col=0;
+    }
+
+    //Create list of offscreen sounds
+    for (var i=0; i<this.sound_manager.floor_sounds[this.current_floor].length; i++) {
+      if (this.sound_manager.floor_sounds[this.current_floor][i].loc.row<start_cell.row || this.sound_manager.floor_sounds[this.current_floor][i].loc.row>=last_row || this.sound_manager.floor_sounds[this.current_floor][i].loc.col<start_cell.col || this.sound_manager.floor_sounds[this.current_floor][i].loc.col<last_col) {
+        this.offscreen_sounds.push(this.sound_manager.floor_sounds[this.current_floor][i]);
+      }
     }
   }
 }

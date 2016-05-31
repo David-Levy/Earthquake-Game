@@ -378,6 +378,67 @@ function Game(maze_floor, maze_width, maze_height) {
     this.darkmask.compute(canvas.width, canvas.height);
   }
 
+  this.adjust_sound = function() {
+    //change floor sounds if player just changed floors
+    if (this.curtain_opacity==1 && this.state==Game.STATE_FADING_IN) {
+      this.maze.sound_manager.change_floor(this.maze.current_floor);
+    }
+
+    //Check onscreen cells for playable sounds
+    for (var i=0; i<this.maze.drawable_cells.length; i++) {
+      if (this.maze.drawable_cells[i].my_npc!=null) {
+        var distance = {
+          x: (this.maze.drawable_cells[i].my_npc.bounds.x+(this.maze.drawable_cells[i].my_npc.bounds.width/2))-(this.player.bounds.x+(this.player.bounds.width/2)),
+          y: (this.maze.drawable_cells[i].my_npc.bounds.y+(this.maze.drawable_cells[i].my_npc.bounds.height/2))-(this.player.bounds.y+(this.player.bounds.height/2))
+        };
+        //If the sound is in range
+        if (Math.pow(distance.x, 2)+Math.pow(distance.y, 2)<=Math.pow(Player.HEARING_RADIUS, 2)) {
+          //If sound is not playing, play sound
+          if (!this.maze.drawable_cells[i].my_npc.my_sound.playing) {
+            this.maze.drawable_cells[i].my_npc.my_sound.playing = true;
+            this.maze.drawable_cells[i].my_npc.my_sound.sound.play();
+          }
+
+          //Adjust sound position
+          this.maze.drawable_cells[i].my_npc.my_sound.sound.pos3d(((distance.x/Player.HEARING_RADIUS)*Pos_Sound_Manager.SOUND_3D_RANGE), ((distance.y/Player.HEARING_RADIUS)*Pos_Sound_Manager.SOUND_3D_RANGE), 0);
+        }
+        //stop sound if out of range
+        else {
+          if (this.maze.drawable_cells[i].my_npc.my_sound.playing) {
+            this.maze.drawable_cells[i].my_npc.my_sound.playing = false;
+            this.maze.drawable_cells[i].my_npc.my_sound.sound.stop();
+          }
+        }
+      }
+    }
+
+    //check list of offscreen sounds for playable sounds
+    for (var i=0; i<this.maze.offscreen_sounds.length; i++) {
+      var distance = {
+        x: ((((this.maze.offscreen_sounds[i].loc.col-this.maze.view_start_cell.col)*Maze.TILE_SIZE)-this.maze.view_tile_offset.width)+(Maze.TILE_SIZE/2))-(this.player.bounds.x+(this.player.bounds.width/2)),
+        y: ((((this.maze.offscreen_sounds[i].loc.row-this.maze.view_start_cell.row)*Maze.TILE_SIZE)-this.maze.view_tile_offset.height)+(Maze.TILE_SIZE/2))-(this.player.bounds.y+(this.player.bounds.height/2))
+      };
+      //If the sound is in range
+      if (Math.pow(distance.x, 2)+Math.pow(distance.y, 2)<=Math.pow(Player.HEARING_RADIUS, 2)) {
+        //Start sound if it wasn't previously playing
+        if (!this.maze.offscreen_sounds[i].playing) {
+          this.maze.offscreen_sounds[i].playing = true;
+          this.maze.offscreen_sounds[i].sound.play();
+        }
+
+        //Change sound position
+        this.maze.offscreen_sounds[i].sound.pos3d(((distance.x/Player.HEARING_RADIUS)*Pos_Sound_Manager.SOUND_3D_RANGE), ((distance.y/Player.HEARING_RADIUS)*Pos_Sound_Manager.SOUND_3D_RANGE), 0);
+      }
+      //stop sound if out of range
+      else {
+        if (this.maze.offscreen_sounds[i].playing) {
+          this.maze.offscreen_sounds[i].playing = false;
+          this.maze.offscreen_sounds[i].sound.stop();
+        }
+      }
+    }
+  }
+
   //Check for collisions
   this.check_collisions = function(mouse_info) {
     this.collision_tree.clear();
@@ -473,6 +534,9 @@ function Game(maze_floor, maze_width, maze_height) {
 
       //Compute lighting objects
       this.adjust_lighting(mouse_info);
+
+      //Adjust sound positions
+      this.adjust_sound();
     }
 
     //Adjust curtain fade
@@ -494,9 +558,13 @@ function Game(maze_floor, maze_width, maze_height) {
       if (!in_dialogue) {
         //Remove character from map if they are now in your party
         if (this.player.party[this.dialogue.which_character]) {
+          //stop sound from playing
+          this.maze.sound_manager.remove_sound(this.maze.cells[this.dialogue_pos.floor][this.dialogue_pos.row][this.dialogue_pos.col].my_npc.my_sound);
+
           this.maze.cells[this.dialogue_pos.floor][this.dialogue_pos.row][this.dialogue_pos.col].my_npc = null;
         }
         this.dialogue = null;
+        this.maze.sound_manager.resume_all();
       }
     }
   }
