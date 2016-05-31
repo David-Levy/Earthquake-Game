@@ -80,6 +80,7 @@ function Player(maze, game) {
   //Create sprite object for can click icon
   this.can_click_sprite = new Sprite(Sprite.can_click_left, 60);
   this.show_can_click = false;
+  this.can_click_pos = {x: 0, y: 0};
 
   //Create inventory for player
   this.inventory = {
@@ -282,6 +283,10 @@ function Player(maze, game) {
           }
           else {
             this.show_can_click = true;
+            this.can_click_pos = {
+              x: possible_collisions[i].bounds.x+(possible_collisions[i].bounds.width/2)-(Player.CAN_CLICK_DIM/2),
+              y: possible_collisions[i].bounds.y+(possible_collisions[i].bounds.height/2)-(Npc.NPC_DIM/2)-Player.CAN_CLICK_DIM
+            };
           }
         }
       }
