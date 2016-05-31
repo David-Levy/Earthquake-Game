@@ -36,8 +36,6 @@ function Pos_Sound_Manager(num_floors) {
 
     //change current floor to new floor
     this.current_floor = floor;
-    console.log("hit change floor");
-    console.log(this.current_floor);
   }
 
   //Insert a new sound into a floor
@@ -64,7 +62,6 @@ function Pos_Sound_Manager(num_floors) {
 
   //pauses all sounds on floor
   this.pause_all = function() {
-    console.log(this.current_floor);
     for (var i=0; i<this.floor_sounds[this.current_floor].length; i++) {
       this.floor_sounds[this.current_floor][i].sound.pause();
     }
@@ -72,7 +69,6 @@ function Pos_Sound_Manager(num_floors) {
 
   //looks for the given sound and removes it from the list, return true if sound was removed
   this.remove_sound = function(target_sound) {
-    console.log("hit3");
     for (var i=0; i<this.floor_sounds[target_sound.loc.floor].length; i++) {
       if (this.floor_sounds[target_sound.loc.floor][i].loc.row==target_sound.loc.row && this.floor_sounds[target_sound.loc.floor][i].loc.col==target_sound.loc.col) {
         this.floor_sounds[target_sound.loc.floor].splice(i, 1);
