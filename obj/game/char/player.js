@@ -3,6 +3,7 @@ var context;
 
 //URL of sound files
 Player.CHANGE_BATT_SOUND_URL = 'audio/center_effects/batteries';
+Player.LOW_BATT_SOUND_URL = 'audio/center_effects/low_battery';
 
 //Size of player
 var PLAYER_DIM = 50;
@@ -58,6 +59,14 @@ function Player(maze, game) {
     urls: [Player.CHANGE_BATT_SOUND_URL+'.mp3', Player.CHANGE_BATT_SOUND_URL+'.ogg'],
     autoplay: false,
     loop: false,
+    volume: 1
+  });
+
+  //Create low battery sound object
+  this.low_battery_sound = new Howl({
+    urls: [Player.LOW_BATT_SOUND_URL+'.mp3', Player.LOW_BATT_SOUND_URL+'.ogg'],
+    autoplay: false,
+    loop: true,
     volume: 1
   });
 
@@ -320,10 +329,14 @@ function Player(maze, game) {
           this.inventory.battery[0].update();
           //replace batery if out and have spare
           if (this.inventory.battery[0].life == 0) {
+            this.low_battery_sound.stop();
             this.inventory.battery.shift();
             this.changing_battery = true;
           }
-          else if (this.inventory.battery[0].life<=this.inventory.battery[0].warn_point) {
+          else if (this.inventory.battery[0].life==this.inventory.battery[0].warn_point) {
+            this.low_battery_sound.play();
+          }
+          else if (this.inventory.battery[0].life<this.inventory.battery[0].warn_point) {
             this.flashlight_flicker();
           }
         }

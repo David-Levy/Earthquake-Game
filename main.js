@@ -5,7 +5,7 @@ Sprite.npc_body = new Array(5);
 Sprite.can_click_left = new Array(2);
 Sprite.can_click_right = new Array(2);
 
-var NUM_ASSETS = 21;
+var NUM_ASSETS = 22;
 
 $(document).ready(function(){
   var canvas = $("#canvas")[0];
@@ -169,6 +169,13 @@ $(document).ready(function(){
     //Load battery change sound
     new Howl({
       urls: [Player.CHANGE_BATT_SOUND_URL+'.mp3', Player.CHANGE_BATT_SOUND_URL+'.ogg'],
+      autoplay: false,
+      onload: function() {delay_until_loaded();}
+    });
+
+    //Load battery change sound
+    new Howl({
+      urls: [Player.LOW_BATT_SOUND_URL+'.mp3', Player.LOW_BATT_SOUND_URL+'.ogg'],
       autoplay: false,
       onload: function() {delay_until_loaded();}
     });
