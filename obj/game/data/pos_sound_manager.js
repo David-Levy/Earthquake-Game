@@ -4,7 +4,7 @@ Pos_Sound_Manager.SOUND_3D_RANGE = 5;
 Pos_Sound_Manager.NPC_ID = 0;
 
 //Array of sound urls
-var sound_urls = [
+Pos_Sound_Manager.sound_urls = [
   'audio/pos_effects/whispers'
 ];
 
@@ -44,9 +44,9 @@ function Pos_Sound_Manager(num_floors) {
   this.insert = function(loc, sound_id) {
     this.floor_sounds[loc.floor].push({
       sound: new Howl({
-        urls: [sound_urls[sound_id]+'.mp3', sound_urls[sound_id]+'.ogg'],
+        urls: [Pos_Sound_Manager.sound_urls[sound_id]+'.mp3', Pos_Sound_Manager.sound_urls[sound_id]+'.ogg'],
         loop: true,
-        volume: 0.15
+        volume: 1
         }),
       playing: false,
       loc: {

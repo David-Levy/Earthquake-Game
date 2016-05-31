@@ -17,6 +17,9 @@ Game.STATE_NORMAL = 0;
 Game.STATE_CHANGING_FLOORS = 1;
 Game.STATE_FADING_IN = 2;
 
+//Game background music urls
+Game.BG_MUSIC_URL = 'audio/background/bg';
+
 var canvas;
 var context;
 
@@ -94,6 +97,14 @@ function Game(maze_floor, maze_width, maze_height) {
     objects: lighting_objects
   });
   this.darkmask = new illuminated.DarkMask({ lights: [this.player.flashlight], color: 'rgba(0,0,0,0.96)'}); //Original Value for color alpha: 976
+
+  //Start background music
+  this.background_music = new Howl({
+    urls: [Game.BG_MUSIC_URL+'.mp3', Game.BG_MUSIC_URL+'.ogg'],
+    loop: true,
+    autoplay: false,
+    volume: 0.5
+  });
 
   //Adjusts and updates lighting objects
   this.adjust_lighting = function(mouse_info) {

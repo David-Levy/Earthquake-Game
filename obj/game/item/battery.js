@@ -21,8 +21,9 @@ function Battery(location) {
   }
   this.obj_type = Game.BATTERY_ID;
 
-  //Set life of battery
+  //Set life of battery and warning point
   this.life = Math.floor(Math.random()*(Battery.MAX_LIFE-Battery.MIN_LIFE))+Battery.MIN_LIFE;
+  this.warn_point = Math.floor(this.life*0.08);
 
   //Draws the battery
   this.draw = function() {
