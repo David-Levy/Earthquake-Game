@@ -1,6 +1,9 @@
 var canvas;
 var context;
 
+//URL of sound files
+Player.CHANGE_BATT_SOUND_URL = 'audio/center_effects/batteries';
+
 //Size of player
 var PLAYER_DIM = 50;
 
@@ -31,6 +34,7 @@ var KEY_CODE_LEFT = 37;//Left arrow
 var KEY_CODE_RIGHT = 39;//Right arrow
 
 var MAX_BATT_CHANGE_TIME = 150;
+var BATT_CHANGE_SOUND_TRIGGER_TIME = 105;
 
 //Define base color of flashlight
 Player.FLASHLIGHT_COLOR_RED = 250;
@@ -41,6 +45,14 @@ Player.FLASHLIGHT_COLOR_BLUE = 150;
 function Player(maze, game) {
   canvas = $("#canvas")[0];
   context = canvas.getContext("2d");
+
+  //Create battery change sound object
+  this.batt_change_sound = new Howl({
+    urls: [Player.CHANGE_BATT_SOUND_URL+'.mp3', Player.CHANGE_BATT_SOUND_URL+'.ogg'],
+    autoplay: false,
+    loop: false,
+    volume: 1
+  });
 
 	//Set scroll Points
 	this.scroll_point_up = SCROLL_POINT_VERT;
@@ -281,6 +293,9 @@ function Player(maze, game) {
           if (this.batt_change_time==0) {
             this.batt_change_time = MAX_BATT_CHANGE_TIME;
             this.changing_battery = false;
+          }
+          else if (this.batt_change_time==BATT_CHANGE_SOUND_TRIGGER_TIME) {
+            this.batt_change_sound.play();
           }
         }
       }

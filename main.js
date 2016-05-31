@@ -5,7 +5,7 @@ Sprite.npc_body = new Array(5);
 Sprite.can_click_left = new Array(2);
 Sprite.can_click_right = new Array(2);
 
-var NUM_ASSETS = 20;
+var NUM_ASSETS = 21;
 
 $(document).ready(function(){
   var canvas = $("#canvas")[0];
@@ -165,10 +165,27 @@ $(document).ready(function(){
       autoplay: false,
       onload: function() {delay_until_loaded();}
     });
+
+    //Load battery change sound
+    new Howl({
+      urls: [Player.CHANGE_BATT_SOUND_URL+'.mp3', Player.CHANGE_BATT_SOUND_URL+'.ogg'],
+      autoplay: false,
+      onload: function() {delay_until_loaded();}
+    });
   }
 
+  //Checks if all assets are loaded and then starts the game
   function delay_until_loaded() {
+    //Incriment counter
     asset_count++;
+
+    //Draw completion percentage
+    canvas.width = canvas.width;
+    context.fillStyle = "black";
+    context.textAlign = "center";
+    context.font = "40px Trebuchet MS";
+    context.fillText("Loading: " + Math.round(asset_count*100/NUM_ASSETS) + "% Complete", canvas.width/2, canvas.height/2);
+
     if (asset_count==NUM_ASSETS) {setInterval(game_loop, 17);}
   }
 
