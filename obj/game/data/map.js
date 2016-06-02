@@ -165,6 +165,11 @@ function Map(maze, player) {
       context.fillStyle = "black";
       context.fillText("- Survivor", this.bounds.x+40+(CELL_DIM/2), this.inset.y+(this.my_maze.num_row*CELL_DIM) + 42.5 + (CELL_DIM-10));
     }
+
+    //Draw inventory
+    context.fillStyle = "black";
+    context.fillText(("Batteries:    x" +this.my_player.inventory.battery.length), this.bounds.x+this.bounds.width-175,this.inset.y+(this.my_maze.num_row*CELL_DIM) + 42.5);
+    context.fillText(("Health Kits: x" +this.my_player.inventory.med_kit), this.bounds.x+this.bounds.width-175,this.inset.y+(this.my_maze.num_row*CELL_DIM) + 42.5 + (CELL_DIM-10));
   }
 
   //Update method for map
