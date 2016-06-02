@@ -4,8 +4,11 @@ Sprite.npc_face = new Array(5);
 Sprite.npc_body = new Array(5);
 Sprite.can_click_left = new Array(2);
 Sprite.can_click_right = new Array(2);
+Sprite.map_bg;
+Sprite.map_ui_up_arrow;
+Sprite.map_ui_down_arrow;
 
-var NUM_ASSETS = 22;
+var NUM_ASSETS = 25;
 
 $(document).ready(function(){
   var canvas = $("#canvas")[0];
@@ -72,112 +75,176 @@ $(document).ready(function(){
     //load main character sprite images
     for (var i=0; i<Sprite.main_char_images.length; i++) {
       Sprite.main_char_images[i] = new Image();
-      Sprite.main_char_images[i].onload = function() {delay_until_loaded();}
+      Sprite.main_char_images[i].onload = function() {
+        console.log("Loaded Image: " + this.src);
+        delay_until_loaded();
+      }
       Sprite.main_char_images[i].src = "sprite/char/main/Main" + i + ".png";
-      console.log("Loaded Image: " + Sprite.main_char_images[i].src);
     }
 
     //Load blue girl sprite images
     Sprite.npc_body[Npc.BLUEGIRL_ID] = new Image();
-    Sprite.npc_body[Npc.BLUEGIRL_ID].onload = function() {delay_until_loaded();}
+    Sprite.npc_body[Npc.BLUEGIRL_ID].onload = function() {
+      console.log("Loaded Image: " + Sprite.npc_body[Npc.BLUEGIRL_ID].src);
+      delay_until_loaded();
+    }
     Sprite.npc_body[Npc.BLUEGIRL_ID].src = "sprite/char/npc/body/BlueGirlHead.png";
-    console.log("Loaded Image: " + Sprite.npc_body[Npc.BLUEGIRL_ID].src);
     Sprite.npc_face[Npc.BLUEGIRL_ID] = new Image();
-    Sprite.npc_face[Npc.BLUEGIRL_ID].onload = function() {delay_until_loaded();}
+    Sprite.npc_face[Npc.BLUEGIRL_ID].onload = function() {
+      console.log("Loaded Image: " + Sprite.npc_face[Npc.BLUEGIRL_ID].src);
+      delay_until_loaded();
+    }
     Sprite.npc_face[Npc.BLUEGIRL_ID].src = "sprite/char/npc/face/BlueGirlFace.png";
-    console.log("Loaded Image: " + Sprite.npc_face[Npc.BLUEGIRL_ID].src);
 
     //Load green boy sprite images
     Sprite.npc_body[Npc.GREENBOY_ID] = new Image();
-    Sprite.npc_body[Npc.GREENBOY_ID].onload = function() {delay_until_loaded();}
+    Sprite.npc_body[Npc.GREENBOY_ID].onload = function() {
+      console.log("Loaded Image: " + Sprite.npc_body[Npc.GREENBOY_ID].src);
+      delay_until_loaded();
+    }
     Sprite.npc_body[Npc.GREENBOY_ID].src = "sprite/char/npc/body/GreenBoyHead.png";
-    console.log("Loaded Image: " + Sprite.npc_body[Npc.GREENBOY_ID].src);
     Sprite.npc_face[Npc.GREENBOY_ID] = new Image();
-    Sprite.npc_face[Npc.GREENBOY_ID].onload = function() {delay_until_loaded();}
+    Sprite.npc_face[Npc.GREENBOY_ID].onload = function() {
+      console.log("Loaded Image: " + Sprite.npc_face[Npc.GREENBOY_ID].src);
+      delay_until_loaded();
+    }
     Sprite.npc_face[Npc.GREENBOY_ID].src = "sprite/char/npc/face/GreenBoyFace.png";
-    console.log("Loaded Image: " + Sprite.npc_face[Npc.GREENBOY_ID].src);
 
     //Load old man sprite images
     Sprite.npc_body[Npc.OLDMAN_ID] = new Image();
-    Sprite.npc_body[Npc.OLDMAN_ID].onload = function() {delay_until_loaded();}
+    Sprite.npc_body[Npc.OLDMAN_ID].onload = function() {
+      console.log("Loaded Image: " + Sprite.npc_body[Npc.OLDMAN_ID].src);
+      delay_until_loaded();
+    }
     Sprite.npc_body[Npc.OLDMAN_ID].src = "sprite/char/npc/body/OldManHead.png";
-    console.log("Loaded Image: " + Sprite.npc_body[Npc.OLDMAN_ID].src);
     Sprite.npc_face[Npc.OLDMAN_ID] = new Image();
-    Sprite.npc_face[Npc.OLDMAN_ID].onload = function() {delay_until_loaded();}
+    Sprite.npc_face[Npc.OLDMAN_ID].onload = function() {
+      console.log("Loaded Image: " + Sprite.npc_face[Npc.OLDMAN_ID].src);
+      delay_until_loaded();
+    }
     Sprite.npc_face[Npc.OLDMAN_ID].src = "sprite/char/npc/face/OldManFace.png";
-    console.log("Loaded Image: " + Sprite.npc_face[Npc.OLDMAN_ID].src);
 
     //Load pink woman sprite images
     Sprite.npc_body[Npc.PINKWOMAN_ID] = new Image();
-    Sprite.npc_body[Npc.PINKWOMAN_ID].onload = function() {delay_until_loaded();}
+    Sprite.npc_body[Npc.PINKWOMAN_ID].onload = function() {
+      console.log("Loaded Image: " + Sprite.npc_body[Npc.PINKWOMAN_ID].src);
+      delay_until_loaded();
+    }
     Sprite.npc_body[Npc.PINKWOMAN_ID].src = "sprite/char/npc/body/PinkWomanHead.png";
-    console.log("Loaded Image: " + Sprite.npc_body[Npc.PINKWOMAN_ID].src);
     Sprite.npc_face[Npc.PINKWOMAN_ID] = new Image();
-    Sprite.npc_face[Npc.PINKWOMAN_ID].onload = function() {delay_until_loaded();}
+    Sprite.npc_face[Npc.PINKWOMAN_ID].onload = function() {
+      console.log("Loaded Image: " + Sprite.npc_face[Npc.PINKWOMAN_ID].src);
+      delay_until_loaded();
+    }
     Sprite.npc_face[Npc.PINKWOMAN_ID].src = "sprite/char/npc/face/PinkWomanFace.png";
-    console.log("Loaded Image: " + Sprite.npc_face[Npc.PINKWOMAN_ID].src);
 
     //Load rescue guy sprite images
     Sprite.npc_body[Npc.RESCUEGUY_ID] = new Image();
-    Sprite.npc_body[Npc.RESCUEGUY_ID].onload = function() {delay_until_loaded();}
+    Sprite.npc_body[Npc.RESCUEGUY_ID].onload = function() {
+      console.log("Loaded Image: " + Sprite.npc_body[Npc.RESCUEGUY_ID].src);
+      delay_until_loaded();
+    }
     Sprite.npc_body[Npc.RESCUEGUY_ID].src = "sprite/char/npc/body/RescueGuyHead.png";
-    console.log("Loaded Image: " + Sprite.npc_body[Npc.RESCUEGUY_ID].src);
     Sprite.npc_face[Npc.RESCUEGUY_ID] = new Image();
-    Sprite.npc_face[Npc.RESCUEGUY_ID].onload = function() {delay_until_loaded();}
+    Sprite.npc_face[Npc.RESCUEGUY_ID].onload = function() {
+      console.log("Loaded Image: " + Sprite.npc_face[Npc.RESCUEGUY_ID].src);
+      delay_until_loaded();
+    }
     Sprite.npc_face[Npc.RESCUEGUY_ID].src = "sprite/char/npc/face/RescueGuyFace.png";
-    console.log("Loaded Image: " + Sprite.npc_face[Npc.RESCUEGUY_ID].src);
 
     //Load can click left sprite images
     Sprite.can_click_left[0] = new Image();
-    Sprite.can_click_left[0].onload = function() {delay_until_loaded();}
+    Sprite.can_click_left[0].onload = function() {
+      console.log("Loaded Image: " + Sprite.can_click_left[0].src);
+      delay_until_loaded();
+    }
     Sprite.can_click_left[0].src = "sprite/util/Mouse.png";
-    console.log("Loaded Image: " + Sprite.can_click_left[0].src);
     Sprite.can_click_left[1] = new Image();
-    Sprite.can_click_left[1].onload = function() {delay_until_loaded();}
+    Sprite.can_click_left[1].onload = function() {
+      console.log("Loaded Image: " + Sprite.can_click_left[1].src);
+      delay_until_loaded();
+    }
     Sprite.can_click_left[1].src = "sprite/util/MouseLeft.png";
-    console.log("Loaded Image: " + Sprite.can_click_left[1].src);
 
     //Load can click right sprite images
     Sprite.can_click_right[0] = new Image();
-    Sprite.can_click_right[0].onload = function() {delay_until_loaded();}
+    Sprite.can_click_right[0].onload = function() {
+      console.log("Loaded Image: " + Sprite.can_click_right[0].src);
+      delay_until_loaded();
+    }
     Sprite.can_click_right[0].src = "sprite/util/Mouse.png";
-    console.log("Loaded Image: " + Sprite.can_click_right[0].src);
     Sprite.can_click_right[1] = new Image();
-    Sprite.can_click_right[1].onload = function() {delay_until_loaded();}
+    Sprite.can_click_right[1].onload = function() {
+      console.log("Loaded Image: " + Sprite.can_click_right[1].src);
+      delay_until_loaded();
+    }
     Sprite.can_click_right[1].src = "sprite/util/MouseRight.png";
-    console.log("Loaded Image: " + Sprite.can_click_right[1].src);
+
+    //Load Map UI up arrow
+    Sprite.map_ui_up_arrow = new Image();
+    Sprite.map_ui_up_arrow.onload = function() {
+      console.log("Loaded Image: " + Sprite.map_ui_up_arrow.src);
+      delay_until_loaded();
+    }
+    Sprite.map_ui_up_arrow.src = "sprite/util/Up_Arrow.png";
+
+    //Load Map UI down arrow
+    Sprite.map_ui_down_arrow = new Image();
+    Sprite.map_ui_down_arrow.onload = function() {
+      console.log("Loaded Image: " + Sprite.map_ui_down_arrow.src);
+      delay_until_loaded();
+    }
+    Sprite.map_ui_down_arrow.src = "sprite/util/Down_Arrow.png";
+
+    //Load map background Image
+    Sprite.map_bg = new Image();
+    Sprite.map_bg.onload = function() {
+      console.log("Loaded Image: " + Sprite.map_bg.src);
+      delay_until_loaded();
+    }
+    Sprite.map_bg.src = "sprite/util/map_background.jpg";
   }
 
   //Load audio into memory
   function load_audio() {
-    //load all positional sound effects
-    for (var i=0; i<Pos_Sound_Manager.sound_urls.length; i++) {
-      new Howl({
-        urls: [Pos_Sound_Manager.sound_urls[i]+'.mp3', Pos_Sound_Manager.sound_urls[i]+'.ogg'],
-        autoplay: false,
-        onload: function() {delay_until_loaded();}
-      });
-    }
+    //load npc sound effect
+    new Howl({
+      urls: [Pos_Sound_Manager.sound_urls[Pos_Sound_Manager.NPC_ID]+'.mp3', Pos_Sound_Manager.sound_urls[Pos_Sound_Manager.NPC_ID]+'.ogg'],
+      autoplay: false,
+      onload: function() {
+        console.log("Loaded Sound: " + Pos_Sound_Manager.sound_urls[Pos_Sound_Manager.NPC_ID] + ".mp3 + (same file).ogg");
+        delay_until_loaded();
+      }
+    });
 
     //Load background loop
     new Howl({
       urls: [Game.BG_MUSIC_URL+'.mp3', Game.BG_MUSIC_URL+'.ogg'],
       autoplay: false,
-      onload: function() {delay_until_loaded();}
+      onload: function() {
+        console.log("Loaded Sound: " + Game.BG_MUSIC_URL + ".mp3 + (same file).ogg");
+        delay_until_loaded();
+      }
     });
 
     //Load battery change sound
     new Howl({
       urls: [Player.CHANGE_BATT_SOUND_URL+'.mp3', Player.CHANGE_BATT_SOUND_URL+'.ogg'],
       autoplay: false,
-      onload: function() {delay_until_loaded();}
+      onload: function() {
+        console.log("Loaded Sound: " + Player.CHANGE_BATT_SOUND_URL + ".mp3 + (same file).ogg");
+        delay_until_loaded();
+      }
     });
 
     //Load battery change sound
     new Howl({
       urls: [Player.LOW_BATT_SOUND_URL+'.mp3', Player.LOW_BATT_SOUND_URL+'.ogg'],
       autoplay: false,
-      onload: function() {delay_until_loaded();}
+      onload: function() {
+        console.log("Loaded Sound: " + Player.LOW_BATT_SOUND_URL + ".mp3 + (same file).ogg");
+        delay_until_loaded();
+      }
     });
   }
 
@@ -211,6 +278,6 @@ $(document).ready(function(){
   //Create and start game
   var my_state = new Game_State();
   var asset_count = 0;
-  load_images();
   load_audio();
+  load_images();
 })

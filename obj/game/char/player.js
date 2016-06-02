@@ -82,6 +82,13 @@ function Player(maze, game) {
   //Hook game to player
   this.my_game = game;
 
+  //Position of player in grid
+  this.loc = {
+    floor: 0,
+    row: 0,
+    col: 0
+  };
+
   //Create sprite object for player
   this.my_sprite = new Sprite(Sprite.main_char_images, 10);
   this.sprite_rotation = 0;
@@ -162,10 +169,10 @@ function Player(maze, game) {
   //Lighten or darken flashlight
   this.change_flashlight_brightness = function(percent_change) {
     this.flashlight_color.brightness+=percent_change;
+    if (this.flashlight_color.brightness>1) {this.flashlight_color.brightness = 1;}
+    else if (this.flashlight_color.brightness<(Player.FLASHLIGHT_MIN_BRIGHTNESS)/100) {this.flashlight_color.brightness = (Player.FLASHLIGHT_MIN_BRIGHTNESS)/100;}
     this.my_game.curtain_fade_speed = 0;
     this.my_game.curtain_opacity = 1-this.flashlight_color.brightness;
-    if (this.flashlight_color.brightness>1) {this.flashlight_color.brightness = 1;}
-    else if (this.flashlight_color.brightness<(Player.FLASHLIGHT_MIN_BRIGHTNESS/100)) {this.flashlight_color.brightness = Player.FLASHLIGHT_MIN_BRIGHTNESS/100;}
     this.flashlight_color.red = Math.round(Math.min(Math.max(0, Player.FLASHLIGHT_COLOR_RED+((this.flashlight_color.brightness-1)*Player.FLASHLIGHT_COLOR_RED)), Player.FLASHLIGHT_COLOR_RED));
     this.flashlight_color.green = Math.round(Math.min(Math.max(0, Player.FLASHLIGHT_COLOR_GREEN+((this.flashlight_color.brightness-1)*Player.FLASHLIGHT_COLOR_GREEN)), Player.FLASHLIGHT_COLOR_GREEN));
     this.flashlight_color.blue = Math.round(Math.min(Math.max(0, Player.FLASHLIGHT_COLOR_BLUE+((this.flashlight_color.brightness-1)*Player.FLASHLIGHT_COLOR_BLUE)), Player.FLASHLIGHT_COLOR_BLUE));
@@ -215,10 +222,29 @@ function Player(maze, game) {
     //flag used to determine if player is touching a hole or ramp
     var touching_floor_change_obj = false;
 
+    //Used to determine wehere to draw the player on the mini-map
+    var closest_cell_dist = Number.MAX_SAFE_INTEGER;
+
     for (var i=0; i<possible_collisions.length; i++) {
       if (possible_collisions[i]!=this && Game.collided(this, possible_collisions[i])) {
+        //If this is the bounds of a cell, mark that cell as discovered
+        if (possible_collisions[i].obj_type==Game.CELL_ID) {
+          possible_collisions[i].discovered = true;
+
+          //if this is currently the cell the player is closest to the center to, mark that as their position
+          var temp_dist = Math.pow(this.bounds.x-possible_collisions[i].bounds.x-(possible_collisions[i].bounds.width/2), 2) + Math.pow(this.bounds.y-possible_collisions[i].bounds.y-(possible_collisions[i].bounds.height/2), 2);
+          if (temp_dist<closest_cell_dist) {
+            closest_cell_dist = temp_dist;
+            this.loc = {
+              floor: possible_collisions[i].loc.floor,
+              row: possible_collisions[i].loc.row,
+              col: possible_collisions[i].loc.col
+            };
+          }
+        }
+
         //Check for wall type objects
-        if (possible_collisions[i].obj_type==Game.WALL_ID || possible_collisions[i].obj_type==Game.NPC_ID) {
+        else if (possible_collisions[i].obj_type==Game.WALL_ID || possible_collisions[i].obj_type==Game.NPC_ID) {
           //If object has collided from the top or bottom
           if (this.prev_loc.x<possible_collisions[i].bounds.x+possible_collisions[i].bounds.width && this.prev_loc.x+this.bounds.width>possible_collisions[i].bounds.x) {
             if (this.prev_loc.y<possible_collisions[i].bounds.y) {
@@ -333,9 +359,9 @@ function Player(maze, game) {
             this.inventory.battery.shift();
             this.changing_battery = true;
           }
-          else if (this.inventory.battery[0].life==this.inventory.battery[0].warn_point) {
+          /*else if (this.inventory.battery[0].life==this.inventory.battery[0].warn_point) {
             this.low_battery_sound.play();
-          }
+          }*/
           else if (this.inventory.battery[0].life<this.inventory.battery[0].warn_point) {
             this.flashlight_flicker();
           }

@@ -168,6 +168,7 @@ function Dialogue(character, game) {
 
   // draw function
   this.draw = function() {
+    context.textAlign = "left";
     //draws dialogue box
     context.fillStyle = '#e6d8b3';
     context.fillRect(this.frame.x, this.frame.y, this.frame.width, this.frame.height);

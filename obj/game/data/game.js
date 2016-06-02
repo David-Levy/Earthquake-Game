@@ -11,6 +11,7 @@ Game.FLASHLIGHT_ID = 4;
 Game.BATTERY_ID = 5;
 Game.NPC_ID = 6;
 Game.NPC_TALK_ZONE_ID = 7;
+Game.CELL_ID = 8;
 
 //Game state identifiers
 Game.STATE_NORMAL = 0;
@@ -47,6 +48,7 @@ function Game(maze_floor, maze_width, maze_height) {
   } while (this.solution.length<50);
   this.maze.cells[this.maze.end_loc.floor][this.maze.end_loc.row][this.maze.end_loc.col].my_exit = new Exit({x: 0, y: 0, width: Maze.EXIT_SIZE, height: Maze.EXIT_SIZE});
   this.player = new Player(this.maze, this);
+  this.map = null;
 
   //Test print of path, returns true if pathing has worked
   //console.log(this.maze.start_loc.floor==this.solution[0].floor && this.maze.start_loc.row==this.solution[0].row && this.maze.start_loc.col==this.solution[0].col && this.maze.end_loc.floor==this.solution[this.solution.length-1].floor && this.maze.end_loc.row==this.solution[this.solution.length-1].row && this.maze.end_loc.col==this.solution[this.solution.length-1].col);
@@ -96,7 +98,7 @@ function Game(maze_floor, maze_width, maze_height) {
     light: this.player.flashlight,
     objects: lighting_objects
   });
-  this.darkmask = new illuminated.DarkMask({ lights: [this.player.flashlight], color: 'rgba(0,0,0,0.96)'}); //Original Value for color alpha: 976
+  this.darkmask = new illuminated.DarkMask({ lights: [this.player.flashlight], color: 'rgba(0,0,0,0.97)'}); //Original Value for color alpha: 976
 
   //Start background music
   this.background_music = new Howl({
@@ -457,8 +459,9 @@ function Game(maze_floor, maze_width, maze_height) {
     //Insert Player
     this.collision_tree.insert(this.player);
 
-    //Insert walls, npcs, and npc talk zones
+    //Insert cells, walls, npcs, and npc talk zones
     for (var i=0; i<this.maze.drawable_cells.length; i++) {
+      this.collision_tree.insert(this.maze.drawable_cells[i]);
       for (var j=0; j<this.maze.drawable_cells[i].wall_objs.length; j++) {
         if (this.maze.drawable_cells[i].wall_objs[j]!=null) {
           this.collision_tree.insert(this.maze.drawable_cells[i].wall_objs[j]);
@@ -502,6 +505,11 @@ function Game(maze_floor, maze_width, maze_height) {
       this.dialogue.draw();
     }
 
+    //draw map
+    if (this.map!=null) {
+      this.map.draw();
+    }
+
     //Draw curtain overlay if not completely transparent
     if (this.curtain_opacity>0) {
       context.globalAlpha = this.curtain_opacity;
@@ -534,7 +542,7 @@ function Game(maze_floor, maze_width, maze_height) {
     this.lighting.objects = new Array();
 
     //Update the player
-    if (this.dialogue==null) {
+    if (this.dialogue==null && this.map==null) {
       this.player.update(keys, mouse_info);
 
       //Update the maze
@@ -576,6 +584,24 @@ function Game(maze_floor, maze_width, maze_height) {
         }
         this.dialogue = null;
         this.maze.sound_manager.resume_all();
+      }
+    }
+
+    //Update map if it is present
+    if (this.dialogue==null) {
+      if (this.map!=null) {
+        var close_map = this.map.update(mouse_info);
+        if (close_map) {
+          this.maze.sound_manager.resume_all();
+          this.map = null;
+        }
+      }
+      //Create map on right click if not already open
+      else {
+        if (mouse_info.last_clicked_right && !mouse_info.clicked_right) {
+          this.maze.sound_manager.pause_all();
+          this.map = new Map(this.maze, this.player);
+        }
       }
     }
   }
