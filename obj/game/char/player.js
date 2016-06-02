@@ -113,6 +113,9 @@ function Player(maze, game) {
     this.party[i] = false;
   }
 
+  //Set discovery flashlight_bounds
+  this.discovered_npc = false;
+
   //flag to see if player can change floors
   this.can_change_floor = true;
 
@@ -325,6 +328,11 @@ function Player(maze, game) {
           }
         }
       }
+    }
+
+    //Mark npcs as discovered if found
+    if (this.my_maze.cells[this.loc.floor][this.loc.row][this.loc.col].my_npc!=null) {
+      this.discovered_npc = true;
     }
 
     //Reset can change floor flag if not touched hole or ramp

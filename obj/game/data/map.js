@@ -30,6 +30,7 @@ function Map(maze, player) {
   this.player_opacity = 1;
   this.player_fade_dir = -1;
   this.player_fade_speed = 0.015;
+  this.npc_discovered = false;
 
   //Create buttons
   this.down_button = {
@@ -55,7 +56,9 @@ function Map(maze, player) {
   this.draw = function() {
     //Draw the backround image
     context.drawImage(Sprite.map_bg, this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+    context.strokeStyle = "white";
     context.strokeRect(this.inset.x, this.inset.y, CELL_DIM*this.my_maze.num_col, CELL_DIM*this.my_maze.num_row);
+    context.strokeStyle = "black";
 
     //Draw floor indicator
     context.textAlign = "center";
@@ -142,6 +145,25 @@ function Map(maze, player) {
       context.arc(this.inset.x+(CELL_DIM/2)+(this.my_player.loc.col*CELL_DIM), this.inset.y+(CELL_DIM/2)+(this.my_player.loc.row*CELL_DIM), CELL_DIM/4, 0, Math.PI*2, false);
       context.fill();
       context.globalAlpha = 1;
+    }
+
+    //Draw Legend
+    context.textAlign = "left";
+    context.fillStyle = "red";
+    context.beginPath();
+    context.arc(this.bounds.x+20+(CELL_DIM/2), this.inset.y+(this.my_maze.num_row*CELL_DIM) + 35, CELL_DIM/4, 0, Math.PI*2, false);
+    context.fill();
+    context.fillStyle = "black";
+    context.fillText("- You Are Here", this.bounds.x+40+(CELL_DIM/2), this.inset.y+(this.my_maze.num_row*CELL_DIM) + 42.5);
+
+    //Only displays legend text if you have discovered a npc
+    if (this.my_player.discovered_npc) {
+      context.fillStyle = "purple";
+      context.beginPath();
+      context.arc(this.bounds.x+20+(CELL_DIM/2), this.inset.y+(this.my_maze.num_row*CELL_DIM) + 35 + (CELL_DIM-10), CELL_DIM/4, 0, Math.PI*2, false);
+      context.fill();
+      context.fillStyle = "black";
+      context.fillText("- Survivor", this.bounds.x+40+(CELL_DIM/2), this.inset.y+(this.my_maze.num_row*CELL_DIM) + 42.5 + (CELL_DIM-10));
     }
   }
 
