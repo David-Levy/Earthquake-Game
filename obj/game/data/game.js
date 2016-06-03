@@ -470,7 +470,9 @@ function Game(maze_floor, maze_width, maze_height) {
 
       if (this.maze.drawable_cells[i].my_npc!=null) {
         this.collision_tree.insert(this.maze.drawable_cells[i].my_npc);
-        this.collision_tree.insert(this.maze.drawable_cells[i].my_npc.talk_zone);
+        if (this.maze.drawable_cells[i].my_npc.talk_zone!=null) {
+          this.collision_tree.insert(this.maze.drawable_cells[i].my_npc.talk_zone);
+        }
       }
     }
 
@@ -580,7 +582,7 @@ function Game(maze_floor, maze_width, maze_height) {
           //stop sound from playing
           this.maze.sound_manager.remove_sound(this.maze.cells[this.dialogue_pos.floor][this.dialogue_pos.row][this.dialogue_pos.col].my_npc.my_sound);
 
-          this.maze.cells[this.dialogue_pos.floor][this.dialogue_pos.row][this.dialogue_pos.col].my_npc = null;
+          this.maze.cells[this.dialogue_pos.floor][this.dialogue_pos.row][this.dialogue_pos.col].my_npc.talk_zone = null;
         }
         this.dialogue = null;
         this.maze.sound_manager.resume_all();

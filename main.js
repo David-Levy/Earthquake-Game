@@ -7,8 +7,11 @@ Sprite.can_click_right = new Array(2);
 Sprite.map_bg;
 Sprite.map_ui_up_arrow;
 Sprite.map_ui_down_arrow;
+Sprite.hole;
+Sprite.ramp;
+Sprite.exit;
 
-var NUM_ASSETS = 25;
+var NUM_ASSETS = 28;
 
 $(document).ready(function(){
   var canvas = $("#canvas")[0];
@@ -203,6 +206,30 @@ $(document).ready(function(){
       delay_until_loaded();
     }
     Sprite.map_bg.src = "sprite/util/map_background.jpg";
+
+    //Load hole Image
+    Sprite.hole = new Image();
+    Sprite.hole.onload = function() {
+      console.log("Loaded Image: " + Sprite.hole.src);
+      delay_until_loaded();
+    }
+    Sprite.hole.src = "sprite/util/hole.png";
+
+    //Load ramp Image
+    Sprite.ramp = new Image();
+    Sprite.ramp.onload = function() {
+      console.log("Loaded Image: " + Sprite.ramp.src);
+      delay_until_loaded();
+    }
+    Sprite.ramp.src = "sprite/util/ramp.png";
+
+    //Load exit Image
+    Sprite.exit = new Image();
+    Sprite.exit.onload = function() {
+      console.log("Loaded Image: " + Sprite.exit.src);
+      delay_until_loaded();
+    }
+    Sprite.exit.src = "sprite/util/Exit.png";
   }
 
   //Load audio into memory

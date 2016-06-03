@@ -167,8 +167,10 @@ function Cell(my_loc, my_index) {
     if (this.my_npc!=null) {
       this.my_npc.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_npc.bounds.width/2);
       this.my_npc.bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(this.my_npc.bounds.height/2);
-      this.my_npc.talk_zone.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_npc.talk_zone.bounds.width/2);
-      this.my_npc.talk_zone.bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(this.my_npc.talk_zone.bounds.height/2);
+      if (this.my_npc.talk_zone!=null) {
+        this.my_npc.talk_zone.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_npc.talk_zone.bounds.width/2);
+        this.my_npc.talk_zone.bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(this.my_npc.talk_zone.bounds.height/2);
+      }
     }
     if (this.my_exit!=null) {
       this.my_exit.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_exit.bounds.width/2);
@@ -737,6 +739,7 @@ function Hole(bounds) {
   this.draw = function() {
     context.fillStyle = "#BAF018";
     context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+    //context.drawImage(Sprite.hole, this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
   }
 }
 
@@ -756,6 +759,7 @@ function Ramp(bounds) {
   this.draw = function() {
     context.fillStyle = "green";
     context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+    //context.drawImage(Sprite.ramp, this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
   }
 }
 
@@ -771,10 +775,9 @@ function Exit(bounds) {
   };
   this.obj_type = Game.EXIT_ID;
 
-  //Drawing Method for ramp
+  //Drawing Method for exit
   this.draw = function() {
-    context.fillStyle = "blue";
-    context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+    context.drawImage(Sprite.exit, this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
   }
 }
 

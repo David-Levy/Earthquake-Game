@@ -111,8 +111,7 @@ function Map(maze, player) {
           }
           //Draw exit marker if it exists
           if (this.my_maze.cells[this.current_floor][i][j].my_exit!=null) {
-            context.fillStyle = "blue";
-            context.fillRect((j*CELL_DIM)+(CELL_DIM/2)+this.inset.x-(CELL_DIM/4), (i*CELL_DIM)+(CELL_DIM/2)+this.inset.y-(CELL_DIM/4), (CELL_DIM/2), (CELL_DIM/2));
+            context.drawImage(Sprite.exit, (j*CELL_DIM)+(CELL_DIM/2)+this.inset.x-(CELL_DIM/4), (i*CELL_DIM)+(CELL_DIM/2)+this.inset.y-(CELL_DIM/4), (CELL_DIM/2), (CELL_DIM/2));
           }
           //Draw npc marker if it exists
           if (this.my_maze.cells[this.current_floor][i][j].my_npc!=null) {
