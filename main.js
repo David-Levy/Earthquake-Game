@@ -20,6 +20,8 @@ $(document).ready(function(){
   //Global constants
   var STATE_PLAYING_GAME = 1;
 
+  var delay_state_id;
+
   //Event Listeners
   var keys = {};
   var mouse_info = {
@@ -291,8 +293,10 @@ $(document).ready(function(){
 
   //Checks if all assets are loaded and then starts the game
   function delay_until_loaded() {
-    //Incriment counter
-    asset_count++;
+    //Incriment counted
+    if (asset_count<NUM_ASSETS) {
+      asset_count++;
+    }
 
     //Draw completion percentage
     canvas.width = canvas.width;
@@ -300,11 +304,25 @@ $(document).ready(function(){
     context.textAlign = "center";
     context.font = "40px Trebuchet MS";
     context.fillText("Loading: " + Math.round(asset_count*100/NUM_ASSETS) + "% Complete", canvas.width/2, canvas.height/2);
+    context.fillText("Hint: you can open and close your map with right click", canvas.width/2, (canvas.height/4));
 
     if (asset_count==NUM_ASSETS) {
+      context.fillText("<Click to Begin>", canvas.width/2, 3*(canvas.height/4));
+      delay_state_id = setInterval(delay_until_clicked, 17);
+    }
+  }
+
+  //Delays the game until user clicks
+  function delay_until_clicked() {
+    if (!mouse_info.clicked_left && mouse_info.last_clicked_left) {
+      clearInterval(delay_state_id);
       my_state.game.background_music.play();
       setInterval(game_loop, 17);
     }
+
+    //Update last mouse status
+    mouse_info.last_clicked_left = mouse_info.clicked_left;
+    mouse_info.last_clicked_right = mouse_info.clicked_right;
   }
 
   function update() {
