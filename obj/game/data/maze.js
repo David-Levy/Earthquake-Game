@@ -18,6 +18,12 @@ var WALL_ID_DOWN = 2;
 var WALL_ID_LEFT = 3;
 var WALL_ID_CEIL = 4;
 var WALL_ID_FLOOR = 5;
+Maze.WALL_ID_UP = 0;
+Maze.WALL_ID_RIGHT = 1;
+Maze.WALL_ID_DOWN = 2;
+Maze.WALL_ID_LEFT = 3;
+Maze.WALL_ID_CEIL = 4;
+Maze.WALL_ID_FLOOR = 5;
 
 //Drawing size for cell
 var CELL_DIM = 10;
@@ -63,6 +69,19 @@ function Cell(my_loc, my_index) {
 
   //Position of cell on screen
   this.screen_pos = {x: this.loc.col*TILE_SIZE, y: this.loc.row*TILE_SIZE};
+
+  //Bounds object for cell
+  this.bounds = {
+    x: this.screen_pos.x,
+    y: this.screen_pos.y,
+    width: TILE_SIZE,
+    height: TILE_SIZE,
+    type: Game.RECT_ID
+  };
+  this.obj_type = Game.CELL_ID;
+
+  //Tracks if a cell has been discovered yet
+  this.discovered = false;
 
   //Mark location of cell in disjoint set array
   this.set_index = my_index;
@@ -117,6 +136,8 @@ function Cell(my_loc, my_index) {
   this.set_pos = function(new_pos) {
     this.screen_pos.x = new_pos.x;
     this.screen_pos.y = new_pos.y;
+    this.bounds.x = new_pos.x;
+    this.bounds.y = new_pos.y;
 
     //Update position of elements in cell
     if (this.wall_objs[WALL_ID_UP]!=null && this.wall_objs[WALL_ID_UP]!=undefined) {
@@ -146,8 +167,10 @@ function Cell(my_loc, my_index) {
     if (this.my_npc!=null) {
       this.my_npc.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_npc.bounds.width/2);
       this.my_npc.bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(this.my_npc.bounds.height/2);
-      this.my_npc.talk_zone.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_npc.talk_zone.bounds.width/2);
-      this.my_npc.talk_zone.bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(this.my_npc.talk_zone.bounds.height/2);
+      if (this.my_npc.talk_zone!=null) {
+        this.my_npc.talk_zone.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_npc.talk_zone.bounds.width/2);
+        this.my_npc.talk_zone.bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(this.my_npc.talk_zone.bounds.height/2);
+      }
     }
     if (this.my_exit!=null) {
       this.my_exit.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_exit.bounds.width/2);
@@ -716,6 +739,7 @@ function Hole(bounds) {
   this.draw = function() {
     context.fillStyle = "#BAF018";
     context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+    //context.drawImage(Sprite.hole, this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
   }
 }
 
@@ -735,6 +759,7 @@ function Ramp(bounds) {
   this.draw = function() {
     context.fillStyle = "green";
     context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+    //context.drawImage(Sprite.ramp, this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
   }
 }
 
@@ -750,10 +775,9 @@ function Exit(bounds) {
   };
   this.obj_type = Game.EXIT_ID;
 
-  //Drawing Method for ramp
+  //Drawing Method for exit
   this.draw = function() {
-    context.fillStyle = "blue";
-    context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+    context.drawImage(Sprite.exit, this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
   }
 }
 

@@ -2,7 +2,6 @@ var canvas;
 var context;
 
 //Size of npc
-var NPC_DIM = 50;
 Npc.NPC_DIM = 50;
 var TALK_BUFFER = 20;
 
@@ -11,6 +10,10 @@ Npc.OLDMAN_ID = 1;
 Npc.GREENBOY_ID = 2;
 Npc.PINKWOMAN_ID = 3;
 Npc.RESCUEGUY_ID = 4;
+Npc.SIBLING_ID = 5;
+Npc.SIBLING_RADIO_1_ID = 6;
+Npc.SIBLING_RADIO_2_ID = 7;
+Npc.SIBLING_RADIO_3_ID = 8;
 
 function Npc(character, my_tile, sound) {
   canvas = $("#canvas")[0];
@@ -22,8 +25,8 @@ function Npc(character, my_tile, sound) {
   this.bounds = {
     x: 0,
     y: 0,
-    width: NPC_DIM,
-    height: NPC_DIM,
+    width: Npc.NPC_DIM,
+    height: Npc.NPC_DIM,
     type: Game.RECT_ID
   };
   this.obj_type = Game.NPC_ID;
@@ -35,8 +38,8 @@ function Npc(character, my_tile, sound) {
     bounds: {
       x: this.bounds.x-TALK_BUFFER,
       y: this.bounds.y-TALK_BUFFER,
-      width: NPC_DIM+(TALK_BUFFER*2),
-      height: NPC_DIM+(TALK_BUFFER*2),
+      width: Npc.NPC_DIM+(TALK_BUFFER*2),
+      height: Npc.NPC_DIM+(TALK_BUFFER*2),
       type: Game.RECT_ID
     },
     obj_type: Game.NPC_TALK_ZONE_ID,
