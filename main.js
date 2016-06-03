@@ -227,7 +227,7 @@ $(document).ready(function(){
       console.log("Loaded Image: " + Sprite.hole.src);
       delay_until_loaded();
     }
-    Sprite.hole.src = "sprite/util/hole.png";
+    Sprite.hole.src = "sprite/util/Hole.png";
 
     //Load ramp Image
     Sprite.ramp = new Image();
@@ -235,7 +235,7 @@ $(document).ready(function(){
       console.log("Loaded Image: " + Sprite.ramp.src);
       delay_until_loaded();
     }
-    Sprite.ramp.src = "sprite/util/ramp.png";
+    Sprite.ramp.src = "sprite/util/Ramp.png";
 
     //Load exit Image
     Sprite.exit = new Image();
