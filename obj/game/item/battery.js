@@ -4,8 +4,8 @@ var context;
 Battery.MAX_LIFE = 18000; //~5 minutes
 Battery.MIN_LIFE = 10800; //~3 minutes
 Battery.LOW_WARN_POINT = Math.floor(Battery.MAX_LIFE*0.2);
-Battery.BATTERY_DIM_X = 25;
-Battery.BATTERY_DIM_Y = 25;
+Battery.BATTERY_DIM_X = 45;
+Battery.BATTERY_DIM_Y = 20;
 
 function Battery(location) {
   canvas = $("#canvas")[0];
@@ -13,13 +13,20 @@ function Battery(location) {
 
   //Set battery bounds
   this.bounds = {
-    x: location.x,
-    y: location.y,
+    x: 0,
+    y: 0,
     width: Battery.BATTERY_DIM_X,
     height: Battery.BATTERY_DIM_Y,
     type: Game.RECT_ID
   }
   this.obj_type = Game.BATTERY_ID;
+
+  //Set location
+  this.loc = {
+    floor: location.floor,
+    row: location.row,
+    col: location.col
+  };
 
   //Set life of battery and warning point
   this.life = Math.floor(Math.random()*(Battery.MAX_LIFE-Battery.MIN_LIFE))+Battery.MIN_LIFE;
@@ -27,9 +34,8 @@ function Battery(location) {
 
   //Draws the battery
   this.draw = function() {
-    if (this.bounds.x!=null && this.bounds.y!=null) {
-      context.fillStyle = "gray";
-      context.fillRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+    if (this.loc.floor!=null && this.loc.row!=null && this.loc.col!=null) {
+      context.drawImage(Sprite.battery, this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
     }
   }
 

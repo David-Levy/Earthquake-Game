@@ -10,8 +10,10 @@ Sprite.map_ui_down_arrow;
 Sprite.hole;
 Sprite.ramp;
 Sprite.exit;
+Sprite.battery;
+Sprite.health_kit;
 
-var NUM_ASSETS = 30;
+var NUM_ASSETS = 32;
 
 $(document).ready(function(){
   var canvas = $("#canvas")[0];
@@ -72,7 +74,25 @@ $(document).ready(function(){
 
   function draw() {
     canvas.width = canvas.width;
-    my_state.game.draw();
+    if (my_state.game.state==0) {
+      my_state.game.draw();
+    }
+    else if (my_state.game.state==2) {
+      canvas.width = canvas.width;
+      context.fillStyle = "black";
+      context.textAlign = "center";
+      context.font = "40px Trebuchet MS";
+      context.fillText("You lost the light!", canvas.width/2, canvas.height/2);
+      context.fillText("<Click To Try Again>", canvas.width/2, canvas.height/2+45);
+    }
+    else if (my_state.game.state==3) {
+      canvas.width = canvas.width;
+      context.fillStyle = "black";
+      context.textAlign = "center";
+      context.font = "40px Trebuchet MS";
+      context.fillText("You Escaped!", canvas.width/2, canvas.height/2);
+      context.fillText("<Click To Play Again>", canvas.width/2, canvas.height/2+45);
+    }
   }
 
   //Load images into memory
@@ -246,6 +266,22 @@ $(document).ready(function(){
       delay_until_loaded();
     }
     Sprite.exit.src = "sprite/util/Exit.png";
+
+    //Load battery Image
+    Sprite.battery = new Image();
+    Sprite.battery.onload = function() {
+      console.log("Loaded Image: " + Sprite.battery.src);
+      delay_until_loaded();
+    }
+    Sprite.battery.src = "sprite/util/Battery.png";
+
+    //Load exit Image
+    Sprite.health_kit = new Image();
+    Sprite.health_kit.onload = function() {
+      console.log("Loaded Image: " + Sprite.health_kit.src);
+      delay_until_loaded();
+    }
+    Sprite.health_kit.src = "sprite/util/HealthKit.png";
   }
 
   //Load audio into memory
@@ -304,7 +340,11 @@ $(document).ready(function(){
     context.textAlign = "center";
     context.font = "40px Trebuchet MS";
     context.fillText("Loading: " + Math.round(asset_count*100/NUM_ASSETS) + "% Complete", canvas.width/2, canvas.height/2);
-    context.fillText("Hint: you can open and close your map with right click", canvas.width/2, (canvas.height/4));
+    context.fillText("You can only explore as long as you have light:", canvas.width/2, (canvas.height/4)-90);
+    context.fillText("collect batteries to keep your flashlight on.", canvas.width/2, (canvas.height/4)-45);
+    context.fillText("Hint: You can open and close your map with right click,", canvas.width/2, (canvas.height/4));
+    context.fillText("you can also view your items on the map screen.", canvas.width/2, (canvas.height/4)+45);
+    context.fillText("This game is best experienced with headphones", canvas.width/2, canvas.height-45);
 
     if (asset_count==NUM_ASSETS) {
       context.fillText("<Click to Begin>", canvas.width/2, 3*(canvas.height/4));
@@ -327,7 +367,14 @@ $(document).ready(function(){
 
   function update() {
     //Update game
-    my_state.game.update(keys, mouse_info);
+    if (my_state.game.state==0) {
+      my_state.game.update(keys, mouse_info);
+    }
+    else if (my_state.game.state==2 || my_state.game.state==3) {
+      if (mouse_info.last_clicked_left && !mouse_info.clicked_left) {
+        my_state = new Game_State();
+      }
+    }
 
     //Update last mouse status
     mouse_info.last_clicked_left = mouse_info.clicked_left;

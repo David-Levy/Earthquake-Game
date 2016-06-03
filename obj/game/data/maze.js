@@ -67,6 +67,9 @@ function Cell(my_loc, my_index) {
   //holds event if it is at this cell
   this.my_event = null;
 
+  //holds item if it is at this cell
+  this.my_item = null;
+
   //holds exit if it is at this cell
   this.my_exit = null;
 
@@ -110,6 +113,11 @@ function Cell(my_loc, my_index) {
     //Draw exit if they are at this cell
     if (this.my_exit!=null) {
       this.my_exit.draw();
+    }
+
+    //Draw exit if they are at this cell
+    if (this.my_item!=null) {
+      this.my_item.draw();
     }
   }
 
@@ -182,6 +190,10 @@ function Cell(my_loc, my_index) {
     if (this.my_exit!=null) {
       this.my_exit.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_exit.bounds.width/2);
       this.my_exit.bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(this.my_exit.bounds.height/2);
+    }
+    if (this.my_item!=null) {
+      this.my_item.bounds.x = this.screen_pos.x+(TILE_SIZE/2)-(this.my_item.bounds.width/2);
+      this.my_item.bounds.y = this.screen_pos.y+(TILE_SIZE/2)-(this.my_item.bounds.height/2);
     }
   }
 }
@@ -557,7 +569,7 @@ function Maze(my_floor, my_width, my_height) {
 
   //********************** Try to place npc at given point *********************
   this.place_npc = function(loc, character) {
-    if (this.cells[loc.floor][loc.row][loc.col].wall[WALL_ID_CEIL] && this.cells[loc.floor][loc.row][loc.col].wall[WALL_ID_FLOOR] && this.cells[loc.floor][loc.row][loc.col].my_npc==null && this.cells[loc.floor][loc.row][loc.col].my_event==null) {
+    if (this.cells[loc.floor][loc.row][loc.col].wall[WALL_ID_CEIL] && this.cells[loc.floor][loc.row][loc.col].wall[WALL_ID_FLOOR] && this.cells[loc.floor][loc.row][loc.col].my_npc==null && this.cells[loc.floor][loc.row][loc.col].my_event==null && this.cells[loc.floor][loc.row][loc.col].my_item==null) {
       this.cells[loc.floor][loc.row][loc.col].my_npc = new Npc(character, {floor: loc.floor, row: loc.row, col: loc.col}, this.sound_manager.insert({floor: loc.floor, row: loc.row, col: loc.col}, Pos_Sound_Manager.NPC_ID));
       return true;
     }
@@ -566,7 +578,7 @@ function Maze(my_floor, my_width, my_height) {
 
   //****************** Try to place radio event at given point *****************
   this.place_radio = function(loc, character) {
-    if (this.cells[loc.floor][loc.row][loc.col].wall[WALL_ID_CEIL] && this.cells[loc.floor][loc.row][loc.col].wall[WALL_ID_FLOOR] && this.cells[loc.floor][loc.row][loc.col].my_npc==null && this.cells[loc.floor][loc.row][loc.col].my_event==null) {
+    if (this.cells[loc.floor][loc.row][loc.col].wall[WALL_ID_CEIL] && this.cells[loc.floor][loc.row][loc.col].wall[WALL_ID_FLOOR] && this.cells[loc.floor][loc.row][loc.col].my_npc==null && this.cells[loc.floor][loc.row][loc.col].my_event==null && this.cells[loc.floor][loc.row][loc.col].my_item==null) {
       this.cells[loc.floor][loc.row][loc.col].my_event = new Radio(character, {floor: loc.floor, row: loc.row, col: loc.col});
       return true;
     }

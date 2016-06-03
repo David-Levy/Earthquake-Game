@@ -104,7 +104,7 @@ function Player(maze, game) {
     med_kit: 3
   };
   for (var i=0; i<this.inventory.battery.length; i++) {
-    this.inventory.battery[i] = new Battery({x: null, y: null});
+    this.inventory.battery[i] = new Battery({floor: null, row: null, col: null});
   }
 
   //Create party list
@@ -341,6 +341,16 @@ function Player(maze, game) {
           this.show_can_click = false;
           this.my_game.maze.sound_manager.pause_all();
         }
+        //Check if player has picked up a battery
+        else if (possible_collisions[i].obj_type==Game.BATTERY_ID) {
+          this.inventory.battery.push(possible_collisions[i]);
+          this.my_maze.cells[possible_collisions[i].loc.floor][possible_collisions[i].loc.row][possible_collisions[i].loc.col].my_item = null;
+        }
+        //Check if player has reached the exit
+        else if (possible_collisions[i].obj_type==Game.EXIT_ID) {
+          this.my_game.state = 3;
+          return;
+        }
       }
     }
 
@@ -380,6 +390,11 @@ function Player(maze, game) {
             this.low_battery_sound.stop();
             this.inventory.battery.shift();
             this.changing_battery = true;
+
+            if (this.inventory.battery.length==0) {
+              this.my_game.state = 2;
+              return;
+            }
           }
           /*else if (this.inventory.battery[0].life==this.inventory.battery[0].warn_point) {
             this.low_battery_sound.play();
