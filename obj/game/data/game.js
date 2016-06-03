@@ -12,6 +12,7 @@ Game.BATTERY_ID = 5;
 Game.NPC_ID = 6;
 Game.NPC_TALK_ZONE_ID = 7;
 Game.CELL_ID = 8;
+Game.EVENT_ID = 9;
 
 //Game state identifiers
 Game.STATE_NORMAL = 0;
@@ -82,6 +83,36 @@ function Game(maze_floor, maze_width, maze_height) {
       counter++;
     } while (!this.maze.place_npc(temp_loc, npc_order[i]));
   }
+
+  //Place events
+  var event_avg_dist = this.solution.length/5;
+  for (i=0; i<3; i++) {
+    var random_place;
+    var temp_loc;
+    var counter = 0;
+    do {
+      random_place = Math.floor((i)*event_avg_dist)+Math.floor(Math.random()*(3+Math.floor(counter/10)))+1;
+      temp_loc = {
+        floor: this.solution[random_place].floor,
+        row: this.solution[random_place].row,
+        col: this.solution[random_place].col
+      };
+      counter++;
+    } while (!this.maze.place_radio(temp_loc, i+Npc.SIBLING_RADIO_1_ID));
+    console.log(temp_loc.floor + ", " + temp_loc.row + ", " + temp_loc.col);
+  }
+  var random_place;
+  var temp_loc;
+  var counter = 0;
+  do {
+    random_place = Math.floor((4)*event_avg_dist)+(((Math.floor(Math.random()*1)+1)*-1)*(Math.floor(Math.random()*(3+Math.floor(counter/10)))));
+    temp_loc = {
+      floor: this.solution[random_place].floor,
+      row: this.solution[random_place].row,
+      col: this.solution[random_place].col
+    };
+    counter++;
+  } while (!this.maze.place_npc(temp_loc, Npc.SIBLING_ID));
 
   this.dialogue = null; //Placeholder for when dialogue appears
   //Marks tile location of the npc that is talking
@@ -474,6 +505,10 @@ function Game(maze_floor, maze_width, maze_height) {
           this.collision_tree.insert(this.maze.drawable_cells[i].my_npc.talk_zone);
         }
       }
+
+      if (this.maze.drawable_cells[i].my_event!=null) {
+        this.collision_tree.insert(this.maze.drawable_cells[i].my_event);
+      }
     }
 
     //Get list of possible collisions with player
@@ -577,13 +612,14 @@ function Game(maze_floor, maze_width, maze_height) {
     if (this.dialogue!=null) {
       var in_dialogue = this.dialogue.update(mouse_info);
       if (!in_dialogue) {
-        //Remove character from map if they are now in your party
+        //Remove character talk zone from map if they are now in your party
         if (this.player.party[this.dialogue.which_character]) {
           //stop sound from playing
           this.maze.sound_manager.remove_sound(this.maze.cells[this.dialogue_pos.floor][this.dialogue_pos.row][this.dialogue_pos.col].my_npc.my_sound);
 
           this.maze.cells[this.dialogue_pos.floor][this.dialogue_pos.row][this.dialogue_pos.col].my_npc.talk_zone = null;
         }
+        this.maze.cells[this.dialogue_pos.floor][this.dialogue_pos.row][this.dialogue_pos.col].my_event = null;
         this.dialogue = null;
         this.maze.sound_manager.resume_all();
       }

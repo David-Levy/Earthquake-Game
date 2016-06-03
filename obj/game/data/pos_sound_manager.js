@@ -5,7 +5,7 @@ Pos_Sound_Manager.NPC_ID = 0;
 
 //Array of sound urls
 Pos_Sound_Manager.sound_urls = [
-  'audio/pos_effects/whispers'
+  'audio/pos_effects/npc'
 ];
 
 var canvas;

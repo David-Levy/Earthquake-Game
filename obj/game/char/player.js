@@ -179,7 +179,12 @@ function Player(maze, game) {
     this.flashlight_color.red = Math.round(Math.min(Math.max(0, Player.FLASHLIGHT_COLOR_RED+((this.flashlight_color.brightness-1)*Player.FLASHLIGHT_COLOR_RED)), Player.FLASHLIGHT_COLOR_RED));
     this.flashlight_color.green = Math.round(Math.min(Math.max(0, Player.FLASHLIGHT_COLOR_GREEN+((this.flashlight_color.brightness-1)*Player.FLASHLIGHT_COLOR_GREEN)), Player.FLASHLIGHT_COLOR_GREEN));
     this.flashlight_color.blue = Math.round(Math.min(Math.max(0, Player.FLASHLIGHT_COLOR_BLUE+((this.flashlight_color.brightness-1)*Player.FLASHLIGHT_COLOR_BLUE)), Player.FLASHLIGHT_COLOR_BLUE));
-    this.flashlight.color = 'rgba(' + this.flashlight_color.red + ',' + this.flashlight_color.green + ',' + this.flashlight_color.blue + ',' + this.flashlight_color.alpha + ')';
+    if (!isNaN(this.flashlight_color.red) && !isNaN(this.flashlight_color.green) && !isNaN(this.flashlight_color.blue) && !isNaN(this.flashlight_color.alpha)) {
+      this.flashlight.color = 'rgba(' + this.flashlight_color.red + ',' + this.flashlight_color.green + ',' + this.flashlight_color.blue + ',' + this.flashlight_color.alpha + ')';
+    }
+    else {
+      this.flashlight_color.brightness = 1;
+    }
   }
 
 	//Draw the player
@@ -326,6 +331,15 @@ function Player(maze, game) {
               y: possible_collisions[i].bounds.y+(possible_collisions[i].bounds.height/2)-(Npc.NPC_DIM/2)-Player.CAN_CLICK_DIM
             };
           }
+        }
+        //Check if player has activated an event
+        else if (possible_collisions[i].obj_type==Game.EVENT_ID) {
+          this.my_game.dialogue = new Dialogue(possible_collisions[i].identity, this.my_game);
+          this.my_game.dialogue_pos.floor = possible_collisions[i].loc.floor;
+          this.my_game.dialogue_pos.row = possible_collisions[i].loc.row;
+          this.my_game.dialogue_pos.col = possible_collisions[i].loc.col;
+          this.show_can_click = false;
+          this.my_game.maze.sound_manager.pause_all();
         }
       }
     }

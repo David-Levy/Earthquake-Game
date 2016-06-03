@@ -12,22 +12,17 @@ function Radio(radio_log, my_tile) {
   this.identity = radio_log;
 
   //object to represent the area in which player can talk to a npc
-    bounds = {
-      x: 0-TALK_BUFFER,
-      y: 0-TALK_BUFFER,
-      width: Npc.NPC_DIM+(TALK_BUFFER*2),
-      height: Npc.NPC_DIM+(TALK_BUFFER*2),
-      type: Game.RECT_ID
-    }
-    obj_type = Game.NPC_TALK_ZONE_ID,
-    loc = {
-      floor: my_tile.floor,
-      row: my_tile.row,
-      col: my_tile.col
+  this.bounds = {
+    x: 0-TALK_BUFFER,
+    y: 0-TALK_BUFFER,
+    width: Npc.NPC_DIM+(TALK_BUFFER*2),
+    height: Npc.NPC_DIM+(TALK_BUFFER*2),
+    type: Game.RECT_ID
   }
-
-  //Draw the npc
-  this.draw = function() {
-
+  this.obj_type = Game.EVENT_ID,
+  this.loc = {
+    floor: my_tile.floor,
+    row: my_tile.row,
+    col: my_tile.col
   }
 }

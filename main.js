@@ -1,7 +1,7 @@
 //Sprite Arrays
 Sprite.main_char_images = new Array(4);
-Sprite.npc_face = new Array(5);
-Sprite.npc_body = new Array(5);
+Sprite.npc_face = new Array(6);
+Sprite.npc_body = new Array(6);
 Sprite.can_click_left = new Array(2);
 Sprite.can_click_right = new Array(2);
 Sprite.map_bg;
@@ -11,7 +11,7 @@ Sprite.hole;
 Sprite.ramp;
 Sprite.exit;
 
-var NUM_ASSETS = 28;
+var NUM_ASSETS = 30;
 
 $(document).ready(function(){
   var canvas = $("#canvas")[0];
@@ -154,6 +154,20 @@ $(document).ready(function(){
       delay_until_loaded();
     }
     Sprite.npc_face[Npc.RESCUEGUY_ID].src = "sprite/char/npc/face/RescueGuyFace.png";
+
+    //Load sibling sprite images
+    Sprite.npc_body[Npc.SIBLING_ID] = new Image();
+    Sprite.npc_body[Npc.SIBLING_ID].onload = function() {
+      console.log("Loaded Image: " + Sprite.npc_body[Npc.SIBLING_ID].src);
+      delay_until_loaded();
+    }
+    Sprite.npc_body[Npc.SIBLING_ID].src = "sprite/char/npc/body/SiblingHead.png";
+    Sprite.npc_face[Npc.SIBLING_ID] = new Image();
+    Sprite.npc_face[Npc.SIBLING_ID].onload = function() {
+      console.log("Loaded Image: " + Sprite.npc_face[Npc.SIBLING_ID].src);
+      delay_until_loaded();
+    }
+    Sprite.npc_face[Npc.SIBLING_ID].src = "sprite/char/npc/face/SiblingFace.png";
 
     //Load can click left sprite images
     Sprite.can_click_left[0] = new Image();

@@ -167,14 +167,14 @@ function Dialogue(character, game) {
         this.my_game.player.inventory.battery.shift();
     	}
       else if(this.which_character == Npc.SIBLING_RADIO_1_ID){
-  		  this.what_say = "Yeah, it's me. I left you my other walkie talkie. You wouldn't wake up after the earthquake.";
-        this.option1 = "Ok. Wait where you are. I'll come find you.";
-    	  this.option2 = "Good thinking. I'm on my way toward you.";
+  		  this.what_say = "It's me. I left you my other walkie talkie. You wouldn't wake up after the earthquake.";
+        this.option1 = "Wait there. I'll come find you.";
+    	  this.option2 = "Good thinking. I'm on my way.";
     	}
       else if(this.which_character == Npc.SIBLING_RADIO_2_ID){
   		  this.what_say = "Please hurry. It's really dark now.";
         this.option1 = "I'll be there soon.";
-    	  this.option2 = "Just don't move around too much. It could be dangerous.";
+    	  this.option2 = "Don't move, it could be dangerous.";
     	}
       else if(this.which_character == Npc.SIBLING_RADIO_3_ID){
   		  this.what_say = "...";
@@ -184,10 +184,12 @@ function Dialogue(character, game) {
       else if(this.which_character == Npc.SIBLING_ID){
   		  this.what_say = "Me too. This place has gotten all turned around from the shaking.";
         this.option1 = "I'm just glad you're ok.";
-    	  this.option2 = "We should get out as quickly as possible now.";
+    	  this.option2 = "We should get out as quickly.";
     	}
       this.end_dialogue = true;
-      this.my_game.player.party[this.which_character] = true;
+      if (this.which_character<=Npc.SIBLING_ID) {
+        this.my_game.player.party[this.which_character] = true;
+      }
   	} else{
   		this.end_dialogue = false;
   	}
@@ -235,14 +237,14 @@ function Dialogue(character, game) {
     	  this.option2 = "I'm glad you're here to help.";
     	}
       else if(this.which_character == Npc.SIBLING_RADIO_1_ID){
-  		  this.what_say = "There was an earthquake! You wouldnt wake up, so I left you my other walkie talkie and went to look for help.";
-        this.option1 = "Ok. Wait where you are. I'll come find you.";
-    	  this.option2 = "Good thinking. I'm on my way toward you.";
+  		  this.what_say = "There was an earthquake! You wouldnt wake up, so I left you my other walkie talkie and went for help.";
+        this.option1 = "Wait there. I'll come find you.";
+    	  this.option2 = "Good thinking. I'm on my way.";
     	}
       else if(this.which_character == Npc.SIBLING_RADIO_2_ID){
   		  this.what_say = "Please hurry. It's really dark now.";
         this.option1 = "I'll be there soon.";
-    	  this.option2 = "Just don't move around too much. It could be dangerous.";
+    	  this.option2 = "Don't move, it could be dangerous.";
     	}
       else if(this.which_character == Npc.SIBLING_RADIO_3_ID){
   		  this.what_say = "...";
@@ -267,7 +269,12 @@ function Dialogue(character, game) {
     context.fillStyle = '#e6d8b3';
     context.fillRect(this.frame.x, this.frame.y, this.frame.width, this.frame.height);
     // draws faces of characters on left of dialogue box
-  	context.drawImage(Sprite.npc_face[this.which_character], this.face_pos.x, this.face_pos.y, this.face_pos.width, this.face_pos.height);
+    if (this.which_character<=Npc.SIBLING_ID) {
+  	   context.drawImage(Sprite.npc_face[this.which_character], this.face_pos.x, this.face_pos.y, this.face_pos.width, this.face_pos.height);
+    }
+    else {
+      context.drawImage(Sprite.npc_face[Npc.SIBLING_ID], this.face_pos.x, this.face_pos.y, this.face_pos.width, this.face_pos.height);
+    }
 
     // if dialogue too long for one line, splits it onto two lines
     var line1 = this.what_say;

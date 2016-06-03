@@ -23,7 +23,7 @@ function Battery(location) {
 
   //Set life of battery and warning point
   this.life = Math.floor(Math.random()*(Battery.MAX_LIFE-Battery.MIN_LIFE))+Battery.MIN_LIFE;
-  this.warn_point = Math.floor(this.life*0.04);
+  this.warn_point = Math.floor(this.life*0.03);
 
   //Draws the battery
   this.draw = function() {
