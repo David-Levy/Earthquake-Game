@@ -108,7 +108,7 @@ function Player(maze, game) {
   }
 
   //Create party list
-  this.party = new Array(5);
+  this.party = new Array(6);
   for (var i=0; i<this.party.length; i++) {
     this.party[i] = false;
   }
@@ -348,7 +348,7 @@ function Player(maze, game) {
         }
         //Check if player has reached the exit
         else if (possible_collisions[i].obj_type==Game.EXIT_ID) {
-          this.my_game.state = 3;
+          this.my_game.state = 5;
           return;
         }
       }
@@ -392,7 +392,7 @@ function Player(maze, game) {
             this.changing_battery = true;
 
             if (this.inventory.battery.length==0) {
-              this.my_game.state = 2;
+              this.my_game.state = 4;
               return;
             }
           }

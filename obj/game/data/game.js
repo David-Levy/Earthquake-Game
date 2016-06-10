@@ -513,6 +513,10 @@ function Game(maze_floor, maze_width, maze_height) {
       if (this.maze.drawable_cells[i].my_item!=null) {
         this.collision_tree.insert(this.maze.drawable_cells[i].my_item);
       }
+
+      if (this.maze.drawable_cells[i].my_exit!=null) {
+        this.collision_tree.insert(this.maze.drawable_cells[i].my_exit);
+      }
     }
 
     //Get list of possible collisions with player
@@ -524,7 +528,7 @@ function Game(maze_floor, maze_width, maze_height) {
 
   //Drawing method for game
   this.draw = function() {
-    context.fillStyle = "black";
+    context.fillStyle = "#292929";
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     //Draw the maze

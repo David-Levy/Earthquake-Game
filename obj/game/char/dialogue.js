@@ -273,7 +273,7 @@ function Dialogue(character, game) {
   	   context.drawImage(Sprite.npc_face[this.which_character], this.face_pos.x, this.face_pos.y, this.face_pos.width, this.face_pos.height);
     }
     else {
-      context.drawImage(Sprite.npc_face[Npc.SIBLING_ID], this.face_pos.x, this.face_pos.y, this.face_pos.width, this.face_pos.height);
+      context.drawImage(Sprite.walkie, this.face_pos.x, this.face_pos.y, this.face_pos.width, this.face_pos.height);
     }
 
     // if dialogue too long for one line, splits it onto two lines

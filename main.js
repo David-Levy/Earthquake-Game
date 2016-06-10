@@ -4,6 +4,7 @@ Sprite.npc_face = new Array(6);
 Sprite.npc_body = new Array(6);
 Sprite.can_click_left = new Array(2);
 Sprite.can_click_right = new Array(2);
+Sprite.escape_scene = new Array(3);
 Sprite.map_bg;
 Sprite.map_ui_up_arrow;
 Sprite.map_ui_down_arrow;
@@ -12,8 +13,9 @@ Sprite.ramp;
 Sprite.exit;
 Sprite.battery;
 Sprite.health_kit;
+Sprite.walkie;
 
-var NUM_ASSETS = 32;
+var NUM_ASSETS = 36;
 
 $(document).ready(function(){
   var canvas = $("#canvas")[0];
@@ -74,10 +76,10 @@ $(document).ready(function(){
 
   function draw() {
     canvas.width = canvas.width;
-    if (my_state.game.state==0) {
+    if (my_state.game.state<4) {
       my_state.game.draw();
     }
-    else if (my_state.game.state==2) {
+    else if (my_state.game.state==4) {
       canvas.width = canvas.width;
       context.fillStyle = "black";
       context.textAlign = "center";
@@ -85,13 +87,18 @@ $(document).ready(function(){
       context.fillText("You lost the light!", canvas.width/2, canvas.height/2);
       context.fillText("<Click To Try Again>", canvas.width/2, canvas.height/2+45);
     }
-    else if (my_state.game.state==3) {
+    else if (my_state.game.state==5) {
       canvas.width = canvas.width;
-      context.fillStyle = "black";
-      context.textAlign = "center";
-      context.font = "40px Trebuchet MS";
-      context.fillText("You Escaped!", canvas.width/2, canvas.height/2);
-      context.fillText("<Click To Play Again>", canvas.width/2, canvas.height/2+45);
+      if (escape_scene.sprite.current_image>0 || !escape_scene.passed_first) {
+        context.drawImage(escape_scene.sprite.get_image(), 0, 0, canvas.width, canvas.height);
+      }
+      else {
+        context.fillStyle = "black";
+        context.textAlign = "center";
+        context.font = "40px Trebuchet MS";
+        context.fillText("You Escaped!", canvas.width/2, canvas.height/2);
+        context.fillText("<Click To Play Again>", canvas.width/2, canvas.height/2+45);
+      }
     }
   }
 
@@ -219,6 +226,26 @@ $(document).ready(function(){
     }
     Sprite.can_click_right[1].src = "sprite/util/MouseRight.png";
 
+    //Load escape scene images
+    Sprite.escape_scene[0] = new Image();
+    Sprite.escape_scene[0].onload = function() {
+      console.log("Loaded Image: " + Sprite.escape_scene[0].src);
+      delay_until_loaded();
+    }
+    Sprite.escape_scene[0].src = "sprite/util/Hands1.png";
+    Sprite.escape_scene[1] = new Image();
+    Sprite.escape_scene[1].onload = function() {
+      console.log("Loaded Image: " + Sprite.escape_scene[1].src);
+      delay_until_loaded();
+    }
+    Sprite.escape_scene[1].src = "sprite/util/Hands2.png";
+    Sprite.escape_scene[2] = new Image();
+    Sprite.escape_scene[2].onload = function() {
+      console.log("Loaded Image: " + Sprite.escape_scene[2].src);
+      delay_until_loaded();
+    }
+    Sprite.escape_scene[2].src = "sprite/util/Hands3.png";
+
     //Load Map UI up arrow
     Sprite.map_ui_up_arrow = new Image();
     Sprite.map_ui_up_arrow.onload = function() {
@@ -275,13 +302,21 @@ $(document).ready(function(){
     }
     Sprite.battery.src = "sprite/util/Battery.png";
 
-    //Load exit Image
+    //Load health kit Image
     Sprite.health_kit = new Image();
     Sprite.health_kit.onload = function() {
       console.log("Loaded Image: " + Sprite.health_kit.src);
       delay_until_loaded();
     }
     Sprite.health_kit.src = "sprite/util/HealthKit.png";
+
+    //Load walkie Image
+    Sprite.walkie = new Image();
+    Sprite.walkie.onload = function() {
+      console.log("Loaded Image: " + Sprite.walkie.src);
+      delay_until_loaded();
+    }
+    Sprite.walkie.src = "sprite/util/WalkieTalkie.png";
   }
 
   //Load audio into memory
@@ -341,7 +376,7 @@ $(document).ready(function(){
     context.font = "40px Trebuchet MS";
     context.fillText("Loading: " + Math.round(asset_count*100/NUM_ASSETS) + "% Complete", canvas.width/2, canvas.height/2);
     context.fillText("You can only explore as long as you have light:", canvas.width/2, (canvas.height/4)-90);
-    context.fillText("collect batteries to keep your flashlight on.", canvas.width/2, (canvas.height/4)-45);
+    context.fillText("You only have 3 batteries to use.", canvas.width/2, (canvas.height/4)-45);
     context.fillText("Hint: You can open and close your map with right click,", canvas.width/2, (canvas.height/4));
     context.fillText("you can also view your items on the map screen.", canvas.width/2, (canvas.height/4)+45);
     context.fillText("This game is best experienced with headphones", canvas.width/2, canvas.height-45);
@@ -367,12 +402,27 @@ $(document).ready(function(){
 
   function update() {
     //Update game
-    if (my_state.game.state==0) {
+    if (my_state.game.state<4) {
       my_state.game.update(keys, mouse_info);
     }
-    else if (my_state.game.state==2 || my_state.game.state==3) {
+    else if (my_state.game.state==4) {
       if (mouse_info.last_clicked_left && !mouse_info.clicked_left) {
         my_state = new Game_State();
+      }
+    }
+    else if (my_state.game.state==5) {
+      if (escape_scene.sprite.current_image>0 || !escape_scene.passed_first) {
+        escape_scene.sprite.update();
+        if (escape_scene.sprite.current_image>0) {escape_scene.passed_first = true;}
+      }
+      else {
+        if (mouse_info.last_clicked_left && !mouse_info.clicked_left) {
+          my_state = new Game_State();
+          escape_scene = {
+            sprite: new Sprite(Sprite.escape_scene, 120),
+            passed_first: false
+          };
+        }
       }
     }
 
@@ -382,8 +432,12 @@ $(document).ready(function(){
   }
 
   //Create and start game
-  var my_state = new Game_State();
   var asset_count = 0;
   load_audio();
   load_images();
+  var my_state = new Game_State();
+  var escape_scene = {
+    sprite: new Sprite(Sprite.escape_scene, 120),
+    passed_first: false
+  };
 })
